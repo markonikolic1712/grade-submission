@@ -3,8 +3,11 @@ package com.ltp.gradesubmission.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
 import com.ltp.gradesubmission.Grade;
 
+@Repository
 public class GradeRepository {
     
     // kreira se lista Grade objekata - ova lista ce se setovati modelu kao atribut i sa modelom ce se poslati na view
