@@ -1,11 +1,8 @@
 package com.ltp.gradesubmission.repository;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Repository;
-
-import com.ltp.gradesubmission.Grade;
+import com.ltp.gradesubmission.entity.Grade;
 
 @Repository
 public class GradeRepository {
@@ -33,5 +30,9 @@ public class GradeRepository {
     // metoda koja radu update Grade objekta i to tako sto na mesto starog objekta setuje novi. Prosledjuje se index i na mestu tog index-a se upisuje novi Grade objekat - preko starog
     public void updateGrade(int index, Grade newGrade){
         studentGrades.set(index, newGrade);
+    }
+
+    public void deleteGrade(int index) {
+        studentGrades.remove(index);
     }
 }

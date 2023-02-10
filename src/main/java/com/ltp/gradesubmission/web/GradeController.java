@@ -1,4 +1,4 @@
-package com.ltp.gradesubmission.controller;
+package com.ltp.gradesubmission.web;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.ltp.gradesubmission.Grade;
+import com.ltp.gradesubmission.entity.Grade;
 import com.ltp.gradesubmission.repository.GradeRepository;
-import com.ltp.gradesubmission.service.GradeService;
+import com.ltp.gradesubmission.service.GradeServiceImpl;
 
 @Controller
 public class GradeController {
 
-
+    
     
     @Autowired
-    GradeService gradeService;
+    GradeServiceImpl gradeService;
 
     @GetMapping("/grades")
     public String getGrades(Model model){

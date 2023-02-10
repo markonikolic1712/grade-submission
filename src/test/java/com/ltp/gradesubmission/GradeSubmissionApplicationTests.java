@@ -12,7 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.ltp.gradesubmission.controller.GradeController;
+import com.ltp.gradesubmission.web.GradeController;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // anotacija @SpringBootTest pokrece aplikaciju tako sto poziva metodu contextLoads() i skenira aplikaciju za binovima

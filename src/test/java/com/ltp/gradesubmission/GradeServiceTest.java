@@ -1,8 +1,8 @@
 package com.ltp.gradesubmission;
 
-import com.ltp.gradesubmission.Grade;
+import com.ltp.gradesubmission.entity.Grade;
 import com.ltp.gradesubmission.repository.GradeRepository;
-import com.ltp.gradesubmission.service.GradeService;
+import com.ltp.gradesubmission.service.GradeServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.endsWith;
@@ -27,11 +27,11 @@ public class GradeServiceTest {
 
     // @InjectMocks anotacija kreira objekat gradeService i u njega inject-uje mock gradeRepository
     @InjectMocks
-    GradeService gradeService;
+    GradeServiceImpl gradeService;
 
     @Test
     public void getGradesFromRepoTest(){
-        // Arrange deo
+        // Arrange deo - priprema podataka
         // ova recenica dole opisuje sta treba da se uradi da se pripreme podaci za test - ovo je mock repository
         // "when the service calls gradeRepository.getGrades(), then it shoud return a List of grades"
         // kada se ova recenica gore prevede u kod imamo ovo dole
@@ -40,12 +40,12 @@ public class GradeServiceTest {
             new Grade("Hermione", "Arithmancy", "A+")
         ));
 
-        // Act deo
+        // Act deo - izvrsavanje logike iz GradeService 
         // poziv metode koja se testira i setovanje rezultata u listu grades
         List<Grade> result = gradeService.getGrades();
 
 
-        // Assert deo
+        // Assert deo - provera podataka dobijenig iz service metode
         // provera da li metoda vraca ocekivani rezultat. Proverava se: expected vs actual
         assertEquals("Harry", result.get(0).getName());
         assertEquals("Potions", result.get(0).getSubject());

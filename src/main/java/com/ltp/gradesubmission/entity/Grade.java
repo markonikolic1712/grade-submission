@@ -1,8 +1,10 @@
-package com.ltp.gradesubmission;
+package com.ltp.gradesubmission.entity;
 
 import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
+
+import com.ltp.gradesubmission.Score;
 
 public class Grade {
     @NotBlank(message = "Name cannot be blank")
