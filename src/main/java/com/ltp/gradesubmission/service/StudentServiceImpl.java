@@ -1,6 +1,7 @@
 package com.ltp.gradesubmission.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,40 +11,69 @@ import com.ltp.gradesubmission.entity.Student;
 import com.ltp.gradesubmission.exception.StudentNotFoundException;
 import com.ltp.gradesubmission.repository.StudentRepository;
 
+import lombok.*;
+
+@AllArgsConstructor
 @Service
 public class StudentServiceImpl implements StudentService {
 
-    @Autowired
     StudentRepository studentRepository;
 
     @Override
-    public Student getStudent(int id) {
-        // return studentRepository.getStudent(id);
-        return studentRepository.getStudentById(id);
+    public Student saveStudent(Student student) {
+        return studentRepository.save(student);        
+    }
+
+    @Override
+    public Student getStudent(Long id) {
+        return studentRepository.findById(id).get();
+    }
+
+    @Override
+    public void deleteStudent(Long id) {        
+        studentRepository.deleteById(id);
     }
 
     @Override
     public List<Student> getStudents() {
+        return (List<Student>) studentRepository.findAll();
+    }
+
+    @Override
+    public void updateStudent(Long id, Student newStudent) throws StudentNotFoundException {
+        // TODO Auto-generated method stub
         
-        return studentRepository.getStudents();
-    }
+    }   
 
-    @Override
-    public void createStudent(Student student) {
-        studentRepository.addStudent(student);        
-    }
 
-    @Override
-    public void deleteStudent(int id) {
-        int index = getStudentIndex(id);
-        studentRepository.deleteStudent(index);
-    }
+    // @Override
+    // public Student getStudent(Long id) {
+    //     return studentRepository.findById(id);
+    // }
+
+    // @Override
+    // public List<Student> getStudents() {
+        
+    //     return studentRepository.getStudents();
+    // }
+ 
+
+    // @Override
+    // public void deleteStudent(Long id) {
+    //     int index = getStudentIndex(id);
+    //     studentRepository.deleteStudent(index);
+    // }
     
+    // @Override
+    // public void updateStudent(Long id, Student newStudent) throws StudentNotFoundException {
+    //     int index = getStudentIndex(id);
+    //     studentRepository.updateStudent(index, newStudent);
+    // }
 
-    public int getStudentIndex(int id) {
-        return IntStream.range(0, studentRepository.getStudents().size())
-            .filter(index -> studentRepository.getStudents().get(index).getId().equals(id))
-            .findFirst()
-            .orElseThrow(() -> new StudentNotFoundException(id));
-    }
+    // public int getStudentIndex(Long id) {
+    //     return IntStream.range(0, studentRepository.getStudents().size())
+    //         .filter(index -> studentRepository.getStudents().get(index).getId() == id)
+    //         .findFirst()
+    //         .orElseThrow(() -> new StudentNotFoundException(id));
+    // }
 }

@@ -22,7 +22,8 @@ public class GradeController {
 
     
     
-    @Autowired
+/*
+     @Autowired
     GradeServiceImpl gradeService;
 
     @GetMapping("/grades")
@@ -32,7 +33,7 @@ public class GradeController {
     }
 
     @GetMapping("/")
-    public String getForm(Model model, @RequestParam(required = false) String id) {
+    public String getForm(Model model, @RequestParam(required = false) Long id) {
         // getGradeIndex(name) == Constants.NOT_FOUND ? new Grade() : studentGrades.get(getGradeIndex(name)) - proverava se da li student postoji u listi. Ako ne postoji onda se kreira prazan Grade objekat a ako postoji uzima se taj student iz liste (po indeksu studentGrades.get(i))
         model.addAttribute("grade", gradeService.getGradeById(id));
         return "form";
@@ -52,4 +53,5 @@ public class GradeController {
         // kada se uradi submit forme radi se redirect na /grades. Kada bi se radio samo return "grades" onda bi bila ucitana ta strana ali podaci ne bi bili poslati u modelu. Kada se radi redirect na /grades poziva se metoda getGrades() u model se dodaje artibut sa listom grade objekata i taj model se salje na view.
         return "redirect:/grades";
     }
+ */
 }

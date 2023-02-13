@@ -3,14 +3,14 @@ package com.ltp.gradesubmission.service;
 import java.util.List;
 
 import com.ltp.gradesubmission.entity.Grade;
-import com.ltp.gradesubmission.exception.GradeNotFounfException;
+import com.ltp.gradesubmission.exception.GradeNotFoundException;
 
 public interface GradeService {
-    Grade getGrade(int index) throws GradeNotFounfException;
-    List<Grade> getGrades();
-    void addGrade(Grade grade);
-    void updateGrade(int index, Grade newGrade) throws GradeNotFounfException;
-    Grade getGradeById(String id) throws GradeNotFounfException;
-    void submitGrade(Grade grade) throws GradeNotFounfException;
-    void deleteGrade(String id) throws GradeNotFounfException;
+    Grade getGrade(Long studentId, Long courseId) throws GradeNotFoundException;
+    Grade saveGrade(Grade grade, Long studentId, Long courseId) throws GradeNotFoundException;
+    Grade updateGrade(String score, Long studentId, Long courseId) throws GradeNotFoundException;
+    void deleteGrade(Long studentId, Long courseId) throws GradeNotFoundException;
+    List<Grade> getStudentGrades(Long studentId) throws GradeNotFoundException;
+    List<Grade> getCourseGrades(Long courseId) throws GradeNotFoundException;
+    List<Grade> getAllGrades() throws GradeNotFoundException;
 }

@@ -1,0 +1,1390 @@
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Instalacija Java JDK ------------------------------------------------------
+
+Za kurs se koristi Java 17 JDK  i moze da se skine sa linka: https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/downloads-list.html
+JDK ce se po defaultu instalirati u C:\Program Files\Amazon Corretto\jdk17.0.5_8 pa ga treba preusmeriti na folder C:\Program Files\Java i instalirace se u C:\Program Files\Java\jdk17.0.5_8
+Treba proveriti da li je instalirana pa se ide u CMD i kuca se: java -version. Ako vrati openjdk version "17.0.5" 2022-10-18 LTS znaci da je instalirana verzija 17.
+Prilikom instalacije ce se automatski setovati 'Enviroment path'. Ako nije onda se ide u System properties=>Advanced=>Enviroment Variables pa u 'System variables' ici na Path pa edit i treba dodati putanju 'C:\Program Files\Java\jdk17.0.5_8\bin' do java jdk. Ako postoji neka druga putanja do java jdk treba je ukloniti.
+
+U kursu se za neke projekte koristi i java verzija 11 ali je java 17 kompatibilna sa prethodnim verzijama pa bi sve trebalo da radi.
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Instalacija Maven ---------------------------------------------------------
+
+Ide se na https://maven.apache.org/download.cgi i bira se apache-maven-3.8.7-bin.zip za download.
+Zip fajl koji je downloadovan treba raspakovati i prevuci ga u C:\Program Files. 
+Da bi maven mogao da se koristi iz CMD-a treba ga u enviroment path treba dodati C:\Program Files\apache-maven-3.8.7\bin.
+de u System properties=>Advanced=>Enviroment Variables pa u 'System variables' ici na Path pa Browse pa odabrati C:\Program Files\apache-maven-3.8.7\bin. Zatim OK pa OK.
+Otvori se CMD pa se sa mvn -version proveri da li je maven instaliran.
+
+Svaki depedency se skida sa Central Maven Repository-a u lokalni repository na lokalnom racunaru. Svi lokalni dependency su u C:\Users\Marko\.m2.
+Kada se u aplikaciju doda neki dependency on ce se uzeti iz lokalnog repositorijuma a ako ga nema onda ce se skinuti.
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------- VS Code ------------------------------------------------------------
+
+U kursu se koristi VS Code.
+Treba instalirati ekstenzije:
+	- java extension pack
+	- spring boot extension
+
+Kreiranje spring boot projekta:
+	1 . U VS code treba otvoriti comand palet sa CTRL+SHIFT+P i u pretragu se kuca 'spring initializr' i bira se 'Spring Initialzr: Create maven project' i bira se poslednja stabilna verzija (2.7.7) zatim se bira Java.
+	2. Treba izabrati GroupId (biramo com.ltp za ovaj projekat). Ovo je domen organizacije za koju kreiramo aplikaciju. Npr. com.learnthepart je domen (internet adresa) organizacije learnthepart.com. Sva slova moraju da budu mala.
+	3. Bira se ArtefactId (hello-spring) - ovo je ime aplikacije. Slova su mala a reci se razdvajaju -. 
+	4. Bira se packaging type - Jar. Opcije su Jar i War.
+	5. Bira se verzija Jave - 17.
+	6. Biraju se dependency. Za hello-spring projekat nemamo dependency pa biramo 0 dependency.
+	7. Sada se bira folder unutra koga treba da se generise projekat.
+	8. Generisace se folder sa projektom o u VS code ce se pojaviti dugme Open. Kada se tu klikne u VS code ce se otvoriti spring boot projekat.
+
+Struktura foldera projekta:
+- U \hello-spring\src\main\java\com\ltp\hellospring je klasa HelloSpringApplication i ovo je entry point aplikacije.
+- Deo \com\ltp je kreiran iz GroupId a deo \hellospring je kreiran iz ArtifactId.
+- U folderu resources su folderi static i templates i fajl application.properties. 
+	U static su staticki fajlovi (slike, css, staticki html)
+	U templates su dinamicki html fajlovi
+	U application.properties su podesavanja aplikacije
+- u src/test/java su testovi - ovaj folder ima istu strukturu kao main folder - \com\ltp\hellospring.
+
+Pokretanje spring aplikacije:
+	- maven komanda - mvn spring-boot:run
+	- ili klik na run button
+	
+Entry point klasa HelloSpringApplication ima anotaciju @SpringBootApplication i zato spring zna da je ovo entry point.
+Kada se pozove komanda mvn spring-boot:run pokrece se kompajler koji kompajlira klase i smesta ih u target folder i nakon toga pokrece taj kompajlirani kod.
+
+Otvori se novi terminal u VSC (CTRL + ` ili Terminal => New terminal) i ako je potrebno sa cd se udje u root folder aplikacije (\hello-spring) i poziva se komanda './mvnw spring-boot:run'. Ova komanda gadja fajl mwnw koji je u root-u projekta i iz njega pokrece aplikaciju. mwnw je maven wrapper. Ako je na sistemu instaliran maven apikacija ne mora da se pokrece sa mwnw - maven wrapper-om.
+Kod se kompajlira i kompajlirane klase se nalaze u target/classes/
+
+Aplikaciju treba pokretati sa "mvn clean spring-boot:run' jer ova komande prvo obrise prethodno kompajlirani kod a zatim ponovo kompajlira.
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Client-Server Model -------------------------------------------------------
+
+-- Klijent salje request HTTP serveru. HTTP server je softver koji prima request, obradjuje ga i salje respons klijentu. Spring boot ima ugradjen HTTP server. HTTP server radi na fizickom serveru/kompjuteru. Fizicki server ima 65000 portova a HTTP server osluskuje i ocekuje request na jednom od tih 65000 portova.
+-- Klijentov request mora da ima u sebi ip adresu servera na kome salje request. Klijentov request mora da sadrzi i port na koji fizicki server treba da prosledi request a to je port na kojem HTTP server ocekuje request.
+-- Npr. klijent salje request na 123.4.5.6:8080 gde je 123.4.5.6 IP adresa fizickog servera a on ce request proslediti na port 8080.
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------- Pokretanje HTTP servera u spring boot-u --------------------------------------- 
+
+Za pokretanje HTTP servera potrebno je samo da se doda dependency Spring Web. Dependency je biblioteka koja je u jar fajlu i koja se dodaje projektu da moze da je koristi.
+
+Ide se na Central Maven Repository (https://mvnrepository.com/) i trazi se 'Spring Boot Starter Web'. Bira se po verziji spring boota koja se koristi a koja moze da se vidi u pom.xml fajlu - <version>2.7.7</version>.
+Uzima se dependency i kopira se u pom fajl:
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <version>2.7.7</version>  - ovo treba da se izbrise
+</dependency> 
+
+Verzija se brise jer je verzija za sve 'spring-boot-starter-...' dependency-e definisana u pom.xml fajlu sa:
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.7</version>
+
+Dodavanjem ovog dependency-a u nasu spring boot aplikaciju je dodat apache server koji ocekuje requeste na portu 8080.
+Aplikacija se pokrene sa mvn clean spring-boot:run i pokrenuce se aplikacija a u terminalu ce biti i red sa: o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+
+Ovaj HTTP server je dostupan na 127.0.0.1:8080 ili localhost:8080 - ovo je poznato i kao loopback address.
+
+Promena porta ka kojem radi http server - ide se u application.properties i doda se red: server.port=9090
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+----------------------------------- Kreiranje statickog html-a koji ce vratiti http server ----------------------------------- 
+
+Kreira se fajl index.html u main/resources/static. Kada spring boot dobije request po defaultu u static folderu trazi html fajl koji se zove index.
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Pakovanje aplikacije u jar fajl ------------------------------------------- 
+U terminalu sa cd treba da se promeni putanja tako da budemo u root-u aplikacije pa se kuca: mvn package. Ova komanda ce kreirati jar fajl. Ime aplikacije je odredjeno sa artefactId u pom.xml-u.
+U pom.xml-u je tag <version>0.0.1-SNAPSHOT</version>. Deo SNAPSHOT oznacava da je aplikacija u razvoju pa ovo treba ukloniti.
+<artifactId>workbook-vezba</artifactId> - ovo odredjuje ime aplikacije - workbook-vezba-0.0.1.jar
+Sa mvn package se kreira izvrsni jar fajl. Kreira se target folder i u njemu ce biti jar fajl - workbook-vezba-0.0.1.jar
+Sa mvn clean se brise target folder i sve u njemu.
+
+Aplikacija se pokrece iz CMD-a. Ide se u folder u kojem je jar i kuca se: java -jar workbook-vezba-0.0.1.jar
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------- Spring Boot DevTools Dependency ------------------------------------------------- 
+DevTools sluzi da se prilikom snimanjanja fajla na kome radimo pokupe sve promene u kodu i restartuje aplikacija.
+
+Aplikaciju treba povremeno pokretati/restartovati sa 'mvn clean spring-boot:run' a onda ostaviti DevTools da je restartuje sam posle promena.
+DevTools radi restart ako se snimi promena na backend-u. Ako se radi promena u html fajlovima onda se ne radi restart ali je promena vidljiva odmah ako se uradi refresh u browser-u.
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+</dependency>
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------- MVC Design - Model View Controller ---------------------------------------------- 
+
+Spring boot prati MVC dizajn. Ono sto korisnik vidi je view i to je html. Model sadrzi podatke koji su potrebni view-u. View je samo placeholder u kojem ce podaci biti prikazani. Controller je ono sto vezuje model i view. 
+U view-u je html element <table> a kontroler ga popunjava podacima.
+
+Kada korisnik iz browser-a posalje request na localhost:8080/grades kontroler hendluje taj request. U kontroleru se poziva metoda getGrades() koja dobavlja podatke, podatke smesta u objekat Model i taj model salje na view. Model popunjava view sa podacima i taj popunjeni view se vraca klijentu.
+
+View - ono sto korisnik vidi.
+Model - sadrzi podatke koji su potrebni view-u
+Controller - hendluje request tako sto kreira i popunjava model podacima. Koristi taj model da popuni view podacima i salje view korisniku.
+
+
+Controller
+U kontroleru se javljaju 4 anotacije: @Controller, @GetMapping, @PostMapping i @RequestParam.
+@Controller - konvertuje klasu u kontroller. Kada klasa dobije anotaciju @Controller onda ona postaje entry point za request-ove.
+Get request se salje na localhost:8080/grades
+Get request mora da ima host (localhost), port (8080) i path (/grades).
+Na osnovu path dela (/grades) kontroler odlucuje koju ce metodu pozvati a ta metoda vraca resource tj. view/html.
+Anotacija @GetMapping konvertuje metodu u handler metodu. @GetMapping prihvata jedan parametar i to path. Metoda vraca String i taj string je ime html fajla/view-a koji se nalazi u resources/templates folderu.
+
+
+View
+View je ono sto korisnik vidi. Kada se posalje request na localhost:8080/grades kontroler vraca string grades a to je u templates/grades.html.
+Da bi grades.html necemu sluzio mora da se popuni sa podacima a oni se u view salju u objektu Model.
+
+
+Objekat Model 
+Model je objekat koji se iz kontrolera prosledjuje na view i ovaj objekat nosi podatke u sebi. U view-u se ovi podaci uzimaju iz modela i prikazuju se u html-u. Inject-ovanje podataka iz modela u html obavlja thymeleaf.
+Kada se posalje request serveru taj request hendluje kontroler i poziva svoju metodu koja je zaduzena za taj request. Metodi se kao parametar prosledjuje objekat tipa Model i metoda ima pristup objektu Model.
+Metoda moze da koristi POJO da kreira objekat i taj objekat setuje modelu kao atribut. Atribut je property objekta Model i podaci se u atributima cuvaju/setuju kao key:value parovi.
+Model je kontejner koji cuva podatke i hendler metoda ima pristup tom Modelu.
+POJO (Plain Old Java Object) klasa je java klasa koja sadrzi private polja, konstruktore i getere i setere za svako polje. 
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------- Thymeleaf ----------------------------------------------------------
+
+Thymeleaf sluzi za inject-ovanje podataka iz objekta Model u html.
+Thymeleaf expressions:
+	1. Variable expression ${...}
+	2. Selection expression *{field}
+	3. Link expression @{/}
+ 
+Variable expression se izvrsava nad atributima modela tj. variable expression uzima podatak iz atributa i koristi ga (obradjuje, prikazije i sl.).
+Variable expression (${imeAtributa}) se sastoji iz 3 dela: 
+	1. $
+	2. {}
+	3. ime atributa
+
+Variable expression moze da se koristi na vise nacina:
+	- vraca atribut ili vrednost iz tog atributa modela
+	- izvrsava uslovni kod na osnovu atributa modela
+	- koristi se za petlju
+	- izvrsava metodu nad atributom modela
+
+th:text - Thymeleaf text - prikazuje textusalnu vrednost - "${grade.score}" - prikazuje vrednost score iz atributa grade. Kada je u template-u <td th:text="${grade.name}"></td> spring procita deo ${grade.name} i zna da treba da pozove geter getName(). Da bi geter bio pozvan ime polja atributa mora da bude dobro tj. moramo se drzati konvencije imenovanja.
+
+Selection (*{}) expression je dobar kada se radi sa objektima. Select expression radi sa poljem objekta koji je prethodno povezan sa HTML elementom. Objekat se vezuje za HTML element sa th:object="${obj iz atributa}" a polje se selektuje sa th:text="*{fieldName}".
+Deo th:object="${model obeject}" vezuje objekat za HTML element.
+        <!-- za <tr> koristimo th:object vezujemo objekat za <tr> a sa th:text= uzimamo vrednost iz polja objekta i prikazujemo ga u <td> -->
+        <tr th:object="${grade}">			- objekat se vezuje za red
+          <td th:text="*{name}"></td>		- iz objekta se uzima polje
+          <td th:text="*{subject}"></td>	- iz objekta se uzima polje
+          <td th:text="*{score}"></td>		- iz objekta se uzima polje
+		</tr>
+
+Thymeleaf conditional logic
+th:if renderuje HTML element na osnovu uslova. Ako je true html element se renderuje ako je false onda se ne renderuje.
+<p th:if="${sales > 100}">Sales are good!</p> - U modelu se salje atribut sales i ako je njegova vrednost > 100 onda se paragraf prikazuje.
+th:unless je suprotno od th:if
+Moze da se koristi i ternarni operator: th:text="${age > 18} ? 'Adult' : 'Not adult'" - ako je age>18 onda se u html elementu ispisuje Adult a ako nije onda sse ispisuje 'Not adult'.
+th:switch - koristi se kada moramo da neku vrednost poredimo sa vise vrednosti.
+   <element th:switch="${modelAtt}">
+      <sub-element th:case="'plain string'">
+      <sub-element th:case="2">
+      <sub-th:case="*"> - default vrednost
+   <element/>
+
+th:text="${modelAttribute} + ${modelAttribute}" - konkatanacija stringova - ako se kao atributi posalju stringovi
+th:text="${modelAttribute} + ${modelAttribute}" - ako se kao atributi posalju brojevi onda ce se sabrati
+th:text="'plain text' + ${modelAttribute}" - ako atribut treba da se spoji sa nekim tekstom onda se taj teks stavlja medju apostrofe
+
+Bibliotekat Thymeleaf ima utility klase koje se koriste u html template-u. Utility klase se nalaze u thymeleaf biblioteci u folderu expressions (thymeleaf/lib/thymeleaf/src/main/java/org/thymeleaf/expressions).
+Sa znakom # se uzima klasa a onda se iz klase uzima metoda koja se koristi, npr. th:text="${#strings.contains(menu, 'rice cakes')}" uzima se klasa Strings iz koje se koristi metoda contains() koja uzima atribut menu (koji u sebi ima string) i proverava da li taj string sadrzi 'rice cakes'.
+<h1 th:text="${#strings.contains(menu, 'rice cakes')} ? 'Yes' : 'No'"></h1> - ako string u atributu menu sadrzi 'rice cakes' renderovace se Yes
+<h1 th:text="${#strings.contains(menu, 'rice cakes')}"></h1> - ako string u atributu menu sadrzi 'rice cakes' renderovace se 'true'.
+
+Link expression - @{/}
+Link expression je url putanja ka nekom resursu.
+U fajlu grades.html je <head> tag i u njemu je <style> tag sa CSS-om. Ceo CSS kod se prekopira u poseban fajl grades-stylesheet.css a iz grades.html se ukoloni ceo <style> tag.
+U grades.html u <head> se dodaje <link th:href="@{/grades-stylesheet.css}" rel="stylesheet">. Putanja je /grades-stylesheet.css zato sto za staticke fajlove putanja automatski krece iz static foldera.
+Folderi su:
+/resources/templates/grades.html
+/resources/templates/form.html
+/resources/static/grades-stylesheet.css
+/resources/static/form-stylesheet.css
+<head><link th:href="@{/grades-stylesheet.css}" rel="stylesheet"></head>
+<head><link th:href="@{/form-stylesheet.css}" rel="stylesheet"></head>
+
+Link expresion moze da sadrzi putanju do fajla ili neki url. Sta ce biti u link expression-u zavisi od toga gde se koristi. 
+	- ako je u <link> tagu onda je th:href i to je putanja do fajla
+	- ako je u formi u <action> tagu onda je th:action i to je url na koji se salju podaci iz forme - @{/url-endpoint}
+	- ako je u link tagu <a> onda je url endpoint th:href="@{/url_endpoint(parameter = value)}"
+
+Thymeleaf loops 
+Thymeleaf moze da se koristi za iteraciju kroz atribut. Ako se na view u atributu modela posalje kolekcija grades iterira se kroz kolekciju i od svakog elementa kolekcije kreira se red sa podacima. Za iteraciju se koristi th:each.
+th:each="element : ${gradesCollection}"
+
+Thymeleaf forma
+1. u kontroleru se poziva metoda koja vraca view form.html. U metodi se kreira model i kao atribut se prosledjuje prazan objekat tipa Grade. Taj objekat se salje na view i sa th:object se vezuje za formu i svaki input field forme se vezuje za polje objekta Grade. Kada klijent popuni formu uzimaju se podaci iz input polja, setuju se u polja objekta Grade i salju se na url koji je u tagu <form>.
+<form th:action="@{/grade/save}" method="POST" th:object="${grade}">
+/grade/save je url na koji se salje request kada objekat Grade treba da se snimi u bazu. Salje se post metodom. 
+Veza izmedju input polja i polja objekata je th:field="*{fieldName}"
+
+<form method="post" th:object="${grade}" th:action="@{/grades/new}">
+	<input type="text" placeholder="Name" th:field="*{name}">
+	<input type="text" placeholder="Score" th:field="*{score}">
+	<input type="text" placeholder="Subject" th:field="*{subject}">
+	<br><br>
+	<input type="submit" value="Submit">
+</form>
+"*{subject}" - ovo poziva geter getSubject()
+
+Submit forme
+	1. Kreira se POST request. U requestu se u body-u salje grade objekat kome su u polja setovani podaci iz input polja.
+	2. Kreira se handler metoda koja prihvata/hendluje post request
+	3. Hendler metoda kao parametar prihvata objekat Grade koji nosi podatke - Kada korisnik klikne na submit spring kreira prazan Grade objekat i koristi seter metode da upise podatke u property-e objekta Grade
+	4. Podatak se upisuje u datastore
+	
+return "redirect:/grades"; - kada se uradi submit forme radi se redirect na /grades. Kada bi se radio samo return "grades" onda bi bila ucitana ta strana ali podaci ne bi bili poslati u modelu. Kada se radi redirect na /grades poziva se handler metoda getGrades() (isto kao kada korisnik ide na url /grades) u model se dodaje artibut sa listom grade objekata i taj model se salje na view. Kada se radi redirect poziva se hendler metoda iz kontrolera getGrades() pa se ucitava lista grades iz baze i ta lista se salje na view grades a kada bi se posle submita forme radio 'return grades' korisniku bii bio vracen view grades ali bi bio prazan.
+   
+    List<Grade> studentGrades = new ArrayList<>();   
+    // kreira se lista Grade objekata - ova lista ce se setovati modelu kao atribut i sa modelom ce se poslati na view
+    // ova lista ce se popuniti samo jednom i to kada se inicijalizuje klasa GradeController. Kasnije kada se uradi refresh stranice u browseru pozvace se metoda getGrades() ali klasa GradeController je vec inicijalizovana pa se lista nece ponovo kreirati
+    // kada se pokrene aplikacija instancira se ova klasa i kreira se lista studentGrades. Kada se uradi submit forme poziva se submitGrade() i grade se dodaje u listu. Taj dodati grade ce ostati u listi dok aplikacija radi - dok postoji instanca klase GradeController postojace i property/lista studentGrades i dodati grade u njoj. 
+	
+U grades tabeli je dodata kolona u kojoj je Update dugme. 
+class="update" je css klasa koja <a> pretvara u button.
+<td><a class="update" role="button" th:href="@{/(id = ${grade.id})}">Update</a></td>
+Kada se klikne na Update na url / se salje parametar id studenta. Kada se salje parametar kao Query parameter onda se u link expression dodaje parametar u zagradu (id = ${grade.id}). Kada se posalje request imacemo http://localhost:8080/?id=......
+Handler metoda u kontroleru query parametar prihvata u string. U hendler metodi se prihvata sa @RequestParam mada radi i bez ove anotacije
+    @GetMapping("/")
+    public String gradeForm(Model model, @RequestParam(required = false)  String id)
+(required = false) znaci da je parametar opcioni 
+Ako se sa 'String id' prihvata parametar id i to sa malim slovima onda mora i da se posalje sa malim slovima - (id = ${grade.id}). Ako se posalje sa velikim (ID = ${grade.id}) nece raditi, tj. u hendler metodi ce id biti null.
+
+Primer formatiranja datuma sa nasom custom metodom:
+U POJO klasi se doda metoda getFormatDate(). 
+    public String getFormatDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.format(date);   
+    }
+
+U HTML-u se ova metoda poziva sa th:text = "${element.formatDate}". Spring ce zbog konvencije imenovanja pozvati metodu iz klase isto kao sto poziva getere. Ova metoda sa return vraca formatirani datum i on ce biti prikazan u html-u.
+Primer fomatiranja datuma sa metodom iz thymeleaf biblioteke: ${#dates.format(item.date, 'yyyy-MM-dd')}
+
+FlashAttribute
+FlashAttribute: Data that survives a redirect.
+Kada se u nekoj metodi modelu doda atribut i zatim uradi redirect taj atribut nestaje iz modela. Jedini atribut koji moze da ostane u modelu nakon redirecta je RedirectAttributes.
+Kao parametar metodi se prosledjuje RedirectAttributes redirectAttributes a kada se uradi redirect i pozove se nova metoda u toj novoj metodi u modelu cemo imati atribut koji je dodat u prvoj metodi.
+
+Prva metoda je:
+    @RequestMapping(value = "/submitItem", method = RequestMethod.POST)
+    public String handleSubmit(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("status", Constants.SUCCESS_STATUS); // VAZNO => addFlashAttribute a ne addAttribute
+        return "redirect:/inventory";
+    }
+
+Druga metoda je ona koja hendluje url /inventory i ona ce u modelu imati atribut sa key-em success
+Ova metoda dodaje atribut items a ima i atribut status iz prve metode. Kada se model posalje na view imace dava atributa: items i status.
+    @GetMapping("/inventory")
+    public String getInventory(Model model) {
+        model.addAttribute("items", items);
+        return "inventory";
+    }
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Field validation ----------------------------------------------------------
+U projekat se dodaje validacija unetih podataka od strane korisnika. Ako korisnik unese podatke i oni nemaju smisla za polje u koje su uneseni onda mu se prikazuje poruka sa greskom i ne dozvoljava se da kreira Grade objekat.
+
+Validation dependency:
+https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+
+Kod validacije se proveravaju podaci koji trebaju da se setuju poljima objekta pa se dodaju anotacije na polja u klasi.
+Proces validacije:
+1. Dodaje se anotacija na polje klase - npr. @Min(18) na polje age znaci da mora da ima minimum 18 godina
+2. Kada korisnik submituje formu podaci se prosledjuju hendler metodi bez obzira da li su dobri ili nisu. Spring boot kreira prazan objekat, setuje mu podatke i salje ga kontroleru i tu ga hendluje metoda koja je zaduzena za taj url.
+3. U hendler metodi je anotacija @Valid kod parametra koji treba da se validira
+4. Spring boot kreira prazan objekat. koristi setere tog objekta da mu setuje podatke iz input polja sa forme i pokusava da validira te podatke.
+5. Objekat BindingResult nosi podatke o validaciji
+6. Ako je BindingResult negativan onda korisnik ostaje na strani sa formom, tj. iz kontrolera se sa return vraca 'form' i korisnik je opet na formi
+7. Thymeleaf hvata koje su greske u podacima i prikazuje ih na formi
+
+BindingResult cuva podatake o tome koji uneti podaci su dobri a koji nisu.
+Npr. ako je uneto name: John i age: 17 onda ce BindingResult znati da je John ok a 17 nije dobar podatak pa ce se error message na formi ispisati samo za age: 17.
+
+Spring boot anotacije za validaciju:
+@NotBlank	-	at least one non-whitespace character
+@Min		-	cannot be less than the minimum
+@Max		-	cannot exceed the maximum
+@NotEmpty	-	cannot be null or empty
+@Email		-	well-formed email address
+@Size		-	size must be between boundary
+@AssertTrue	-	must equal true
+@Past		-	is in the past - datum je validan ako je u proslosti
+@Future		-	is in the future - datum je validan ako je u buducnosti
+
+@NotBlank(message = "Name cannot be blank") - NotBlank znaci da je error ako korisnik unese space
+private String name;
+@NotBlank(message = "Name cannot be blank")
+private String subject;
+
+U kontroler se dodaje i u parametrima BindingResult mora da bude posle @Valid. Nakon validacije BindingResult nosi rezultat validacije.
+Radi se return "form"; zato sto se salje BindingResult a kada bi se radio rediract BindingResult bi se izgubio.
+import javax.validation.Valid;
+@PostMapping("/handleSubmit")
+public String submitForm(@Valid Grade grade, BindingResult result){
+    // proverava se da li je firstName isti kao lastName. Ovako se kreiraju custom provere. Kada se doda rejectValue() vrednost u result.hasErrors() ce biti true pa se se korisnik vratiti na formu 
+    if(user.getFirstName().equals(user.getLastName())) result.rejectValue("firstName", "", "Please enter valid data");
+	// result.hasErrors() = true ili false
+	if(result.hasErrors()) return "form";
+}
+
+<p style="color: red;" th:errors="*{name}"></p> - sa selection expression-om selektujemo field za koji treba da se prikaze greska a spring boot zna koji error message treba da prikaze
+<input type="text" placeholder="Name" th:field="*{name}">
+<p style="color: red;" th:errors="*{subject}"></p>
+<input type="text" placeholder="Subject" th:field="*{subject}">
+
+Kreiranje custom validacija - kreira se interfejs
+Dole se kreira validacija polja score iz grade objekta
+@Targer({METHOD, FIELD}) - na sta se primenjuje validacija
+@Constraint(validatedBy = ScoreValidator.class) // sa ovime kazemo da ce Score interfejs biti constraint validacija a da ce logika za proveru biti u klasi ScoreValidator.class
+@Retention(RUNTIME) - period trajanja - validacija treba da traje dok aplikacija radi
+public @interface ValidScore{}
+
+implementira se tako sto se u Grade klasu, na field score doda anotacija @Score 
+// prvi parametar je anotacija za koju je logika u ovoj klasi a drugi je tip vrednosti koja se validira
+// <Score, String> - validacija je @Score a tip podatka koji se validira je String
+public class ScoreValidator implements ConstraintValidator <Score, String>  {
+    // ova metoda treba da vrati true ili false - ako je podatak validan ili nije 
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        // TODO Auto-generated method stub
+        return false;
+    }   
+}
+
+Proces custom validatora je sledeci:
+1. u POJO klasi se stavlja anotacija @Score(message = "Score must be a letter grade")
+2. kreira se interfejs 'public @interface Score' na kojem se stavlja anotacija @Constraint(validatedBy = ScoreValidator.class) cime se kaze da je logika za validaciju u klasi ScoreValidator
+3. U klasi ScoreValidator se implementira interfejs ConstraintValidator: implements ConstraintValidator <Score, String> gde je Score anotacija @Score u POJO klasi a String je tip podatka koji se validira
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Three Layer Design --------------------------------------------------------
+
+1. Layer: Presentation
+2. Layer: Business Logic
+3. Layer: Data Access
+
+Presentation layer je kontroler i on je zaduzen za prezentovanje podataka koji dolaze iz Data Access layer-a. Izmedju kontrolera i Data Access se nalazi Business logic layer i to se Service klasa.
+
+Sve CRUD operacije moraju da budu unutar Repository klase. Repository je DAO (Data Access layer) klasa.
+
+Proces: 
+1. Posalje se request
+2. Kontroler hendluje request i poziva service klasu
+3. Service klasa poziva repository i trazi podatke
+4. Repozitory radi CRUD operacije i vraca podatke service klasi
+5. Service klasa vrsi business operacije ako je potrebno i salje podatke kontroleru
+6. Kontroler uzima podatke i setuje ih modelu (updateuje model). Thymeleaf updateuje view na osnovu podataka iz modela i handler metoda vraca view. Kontroler je zaduzen samo za baratanje sa modelom i prikaz view-a.
+
+Business Logic: a computation or decision-making process.
+U service treba da ide sva business logika tj. sav kod koji nesto izracunava ili oderdjuje tok rada aplikacije a u kontroleru ostaje samo kod koji sluzi za prezentaciju. Kontroler treba samo da zatrazi podatke i kada ih dobije od servisa salje ih u model i na view.
+
+U service treba da ide metoda koja se poziva da se proveri da li Grade postoji u listi studentGrades - ovo je izracunavanje i ide u business logiku.
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------- Bean --------------------------------------------------- 
+Bean je objekat koji spring skladisti i manipulise sa njim umesto nas.
+Kada se na klasu stavi anotacija @Component spring je vidi i od te klase kreira objekat. Spring kontejner (ApplicationContext) cuva objekat i manipulise sa njim i taj objekat koji zivi u spring kontejneru se zove Bean.
+Bean je objekat koji zivi u spring kontejneru.
+
+Nikada ne treba kreirati objekat unutar klase koja zavisi od tog objekta - to je tight coupling. Umesto toga treba inject-ovati objekat i to je dependency injection (DI) i ovo je loose coupling. Kada se neki objekat (dependency) inject-uje u klasu onda se injectuje referenca ka objektu koji je vec instanciran i postoji u spring boot kontejneru. Ako bi se u dependent klasi instancirao dependency onda bi ce kreirao nova instanca a ne bi s ekoristila ona iz sprin boot kontejnera.
+
+@Controller
+public class GradeController {
+	GradeServices gradeServices = new GradeServices();
+}
+
+Ovo gore je tight coupling jer se GradeServices kreira unutar klase GradeController a GradeController je zavistan od GradeServices. Zbog ovoga je unit test nemoguc.
+
+Dependency injection je kada jedna klasa zavisi od druge i ta druga se inject-uje u prvu. Prva klasa je zavisna (dependent) od druge (dependency).
+GradeController je zavisna od GradeServices.
+
+Dependency injection process:
+1. klasa se anotira sa @Component
+2. Kada se pokrene aplikacija Spring boot skenira komponente i klasu koja je anotirana sa @Component registruje kao Bean i smesta je u spring kontejner.
+3. Kada je klasa sa @Component u spring kontejneru ona moze da se injectuje u zavisnu klasu sa @Autowired
+
+GradeController je zavisna od GradeServices pa se na GradeServices stavlja anotacija @Component a zatim se ona u GradeController injectuje sa @Autowired.
+Sa @Autowired klasa GradeService se direktno injectuje iz spring kontejnera i sada GradeController nece kreirati novu instancu GradeService nego ce koristiti onu koja vec postoji u spring boot kontejneru.
+
+@Component
+public class GradeService {}
+
+@Controller
+public class GradeController {
+    @Autowired
+    GradeService gradeService; // kada se injectuje dependency ne stavlja se new GradeServices();
+}
+
+
+@Service and @Repository
+@Component anotacija se suvise genericka pa treba koristiti anotacije @Service i @Repository. Kada spring boot skenira klase i vidi ove anotacije ucitace klase u spring kontejner. I ove klase ce biti bean-ovi.
+
+Anotacija @Controler takodje nastaje iz @Component anotacije, isto kao @Repository i @Service. Zato je GradeController bean koji zivi u spring kontejneru.
+ 
+Registracija @Bean-a
+Da bi neka klasa bila registrovana kao Bean treba da bude anotirana sa @Component (ili njenim derivatima @Service, @Repository) ili da bude anotirana sa @Bean.
+ 
+Proces registracije @Bean-a:
+1. Kreira se @Bean definicija - Bean definicija je metoda koja je anotirana sa @Bean i koja vraca dependency
+2. Klasa u kojoj se definise @Bean treba da se anotira sa @Configuration
+3. Sa @Autowired se anotira dependency tamo gde se bean klasa injectuje.
+@Configuration
+public clas AppConfig {
+	@Bean
+	public GradeSubmissionRepository gradeRepository() {
+		return new GradeSubmissionRepository();
+	}
+}
+
+
+Konfigurisanje bean-a koriscenjem XML-a.
+Kreira se app-config.xml untar foldera /src/main/resources i u njega se dodaje:
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="NewBean" class="com.ltp.gradesubmission.NewBean"> </bean>
+</beans>
+
+<bean id="NewBean" class="com.ltp.gradesubmission.NewBean"> </bean> - id je ime klase koja ce biti bean a class="" je class path do te klase
+
+U folderu java\com\ltp\gradesubmission se kreira klasa AppConfig. gradesubmission je artifactId/ime aplikacije.
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+@Configuration
+@ImportResource("app-config.xml")
+public class AppConfig {
+    @Bean
+    public NewBean newBean() {
+        return new NewBean(); // sa return se vraca instanca bean klase - ovako se sprecava da se bependency klasa (NewBean) instancira unutar klase koja je zavisna od tog dependency-a. Tako je unit test nemoguc
+    }
+}
+
+Kreira se klasa koja ce biti bean i ona se anotira sa @Component. Npr. u folderu controller klasa NewBean 
+@Component
+public class NewBean {   
+}
+
+Sada sa @Autowired moze da se injectuje bean u druge klase. Npr. injectuje se u GradeController klasu.
+@Controller
+public class GradeController {
+    @Autowired
+    NewBean newBean;
+}
+
+Ako u nekoj klasi treba da se inject-uje vise bean-ova ond ato moze da se ucini koriscenjem konstruktora koji se anotira sa @Autowired. Ova anotacija ne mora da se stavi jer je spring boot dovoljno pametan da dependency klase injectuje kao beanove.
+@Controller
+public class GradeController {
+    GradeService gradeService;
+    GradeRepository gradeRepository;
+
+    public GradeController(GradeService gradeService, GradeRepository gradeRepository){
+        this.gradeService = gradeService;
+        this.gradeRepository = gradeRepository;
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- D.I. and Unit Testing ----------------------------------------------------- 
+Unit test se primenjuje na Service jer sadrzi biznis logiku a biznis logika je sklona bagovima.
+Unit test: checks if one small unit of application works as it sould.
+
+Service klasa je GradeService sa dve metode:
+public class GradeService {
+	public void add(){}
+	public void update(){}
+}
+
+Za ovu klasu se kreira test klasa koja ima unit test za svaku logiku u klasi
+public class GradeServiceTest {
+	@Test
+	public void addTest(){}
+	
+	@Test
+	public void updateTest(){}
+}
+
+Service klasa ne moze da se testira kada je tightyly coupled za depedency.
+ServiceTest klasa mora da testira Service klasu u potpunoj izolaciji.
+Kada aplikacija radi u GradeService se injectuje GradeRepository i setuje se u varijablu gradeRepository. Kada se radu unit test ne pokrece se aplikacija pa nema ni spring boot-a da injectuje depedency u gradeRepository varijablu i ona je null. U varijablu se injectuje Mock i on se koristi za testiranje. Mock imitira ponasanje GradeRepository dependency-a i mi mozemo kontrolisati sta Mock moze ili ne moze da vraca pa GradeService moze da se testira u potpunoj izolaciji.. 
+Kada aplikacija radi u GradeService se injectuje GradeRepository i setuje se u varijablu gradeRepository. Kada se radu unit test ne pokrece se aplikacija pa nema ni spring boot-a da injectuje depedency u gradeRepository varijablu i ona je null. U varijablu se injectuje Mock i on se koristi za testiranje. Mock imitira ponasanje GradeRepository dependency-a i mi mozemo kontrolisati sta Mock moze ili ne moze da vraca pa GradeService moze da se testira u potpunoj izolaciji.. 
+
+Ako je klasa GradeServices tightly coupled za GradeRepository onda GradeRepository mora da se instancira i u testiranju i GradeService ne moze da se testira u izolaciji.
+Unit test doprinosi smanjenju verovatnoce da imamo bagove.
+
+Kreiranje unit testa za GradeService.
+1. Dodaje se dependency u pom.xml
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+2. Kreira se GradeServiceTest klasa u folderu \src\test\java\com\ltp\gradesubmission 
+3. Anotacija @RunWith koristi MockitoJUnitRunner da pokrece svaki unit test. Klasa koja se koristi za pokretanje testa zove se 'runner class'.
+4. Koristi se anotacija @Mock da se kreira mock(simulacija/imitacija) repozitorijuma. Mock imitira repository a da taj repozitory nema svoju logiku. Kada se pokrene spring boot aplikacija ona skenira sve klase, kreira komponenete/bean-ove i cuva ih u spring kontejneru pa se u GradeService injectuje GradeRepository. Kada se pokrece test pokrece se samo GradeServiceTest klasa a ne cela aplikacija pa u GradeServiceTest ne moze da se injectuje repository - zato se koristi Mock da imitira repository.
+5. @InjectMock anotacija kreira objekat i inject-uje repository mock u taj objekat. Tako u GradeService injectujemo mock GradeRepository.
+	@InjectMocks anotacija kreira objekat gradeService i u njega inject-uje mock gradeRepository
+
+package com.ltp.gradesubmission;
+import com.ltp.gradesubmission.Grade;
+import com.ltp.gradesubmission.repository.GradeRepository;
+import com.ltp.gradesubmission.service.GradeService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GradeServiceTest {
+
+    @Mock
+    private GradeRepository gradeRepository;
+
+    // @InjectMocks anotacija kreira objekat gradeService i u njega inject-uje mock gradeRepository
+    @InjectMocks
+    GradeService gradeService;
+
+    @Test
+    public void getGradesFromRepoTest(){
+        // Arrange deo
+        // ova recenica dole opisuje sta treba da se uradi da se pripreme podaci za test - ovo je mock repository
+        // "when the service calls gradeRepository.getGrades(), then it shoud return a List of grades"
+        // kada se ova recenica gore prevede u kod imamo ovo dole
+        when(gradeRepository.getGrades()).thenReturn(Arrays.asList(
+            new Grade("Harry", "Potions", "C-"),
+            new Grade("Hermione", "Arithmancy", "A+")
+        ));
+
+        // Act deo
+        // poziv metode koja se testira i setovanje rezultata u listu grades
+        List<Grade> result = gradeService.getGrades();
+
+        // Assert deo
+        // provera da li metoda vraca ocekivani rezultat. Proverava se: expected vs actual
+        assertEquals("Harry", result.get(0).getName());
+        assertEquals("Potions", result.get(0).getSubject());
+    }
+	
+	// test da li metoda vraca ispravan Grade kada se prosledi id
+    @Test
+    public void getGradeByIdTest(){
+        Grade grade = new Grade("Harry", "Potions", "C-");
+        // ovo dole su mock-ovi za repositorium. Ovime se imitira repositorijum tj. ono sto bi repozitorijum vratio kada bi ga service pozvao.
+        // mora da se napravi mock svih metoda iz repozitorijuma koje service poziva
+        when(gradeRepository.getGrades()).thenReturn(Arrays.asList(grade));
+        when(gradeRepository.getGrade(0)).thenReturn(grade);
+
+        String id = grade.getId();
+        Grade result = gradeService.getGradeById(id);
+
+        // uporedjuje se ono sto je u repozitorijumu (mock objekat grade) i ono sto vraca service metoda koja se testira
+        assertEquals(grade, result);
+    }
+	
+    // proverava se da li se grade objekat dodaje - verify() treba da potvrdi da se to dogodilo jednom
+    @Test 
+    public void addGradeTest(){
+        Grade grade = new Grade("Harry", "Potions", "C-");
+        when(gradeRepository.getGrades()).thenReturn(Arrays.asList(grade));
+        when(gradeRepository.getGrade(0)).thenReturn(grade);
+
+        Grade newGrade = new Grade("Hermione", "Arithmancy", "A+");
+        gradeService.submitGrade(newGrade);
+
+        // 1. kreira lista - mock repozitorijuma
+        // 2. u mock repozitorijuma se dodaje newGrade
+        // 3. koristi se verify metoda. Ona proverava koliko se puta nesto desilo - ovde se proverava da li je metoda addGrade() u repozitorijumu (mock) pozvana jedan put
+        verify(gradeRepository, times(1)).addGrade(newGrade);
+    }
+}
+
+Test getGradesFromRepoTest() nema mnogo smisla jer ce metoda getGrades() (iz GradeService) uvek vratiti listu Grade objekata. Treba praviti testove za metode koje imaju neku logiku u sebi da bi se proverilo da vracaju ocekivani rezultat.
+
+Test se pise u tri koraka:
+ - Arrange: Mock podataka (lazni podaci) koji su potrebni za testiranja. Priprema podataka
+ - Act: Pozivanje metode koja se testira
+ - Assert: Provera da li se metoda ponasa kako treba - da bi test prosao u svim proverama u test metodi ocekivani rezultat mora da bude kao onaj koji je vracen.
+
+Proces koji se odvija kada se pokrene unit test:
+1. Dodaje se anotacija @test. @Test kaze JUnit-u da pokrene metodu kao test. 
+2. Pise se test. Test se pise u tri koraka:
+	- Arrange: Mock podataka (lazni podaci) koje treba da vrati test
+	- Act: Pozivanje metode koja se testira
+	- Assert: Provera da li se metoda ponasa kako treba
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Integration Testing -------------------------------------------------------
+
+Integration Test: maps the entire request and response lifecycle.
+Integration test prolazi kroz sve slojeve aplikacije.
+
+Proces:
+1. kreira se mock (imitira) request ka hendler metodi - presentation leyer
+2. zatim se poziva service metoda - business layer
+3. zatim se poziva repository - data layer
+4. kada test mapira ceo request (ovo gore) i response ciklus uradice assertion - proveru. Da li je response success, da li je View dobar i d ali je Model dobar.
+
+Uvek trebaju da se kreiraju unit testovi pre integration testova zato sto se sa unit testom proverava da li je business logika dobra. Ako nije nda nema svrhe raditi Integration test.
+
+Kod integration testiranja neophodan je spring context.
+
+Redosled:
+1. sa unit testovima treba proveriti business logiku
+2. ako je business logika ok onda treba proveriti njenu integraciju sa drugim layer-ima aplikacije
+
+U folderu \test\java\com\ltp\gradesubmission je klasa GradeSubmissionApplicationTests sa anotacijom @SpringBootTest. 
+@SpringBootTest
+class GradeSubmissionApplicationTests {
+
+	@Autowired
+	private GradeController controller;
+
+	@BeforeEach
+	public void setup() {
+		popuni contacts listu
+	}
+	
+	@AfterEach
+	public void clear(){
+		contacts.clear();
+	}
+
+	@Test
+	void contextLoads() {
+	}
+}
+
+Anotacija @SpringBootTest skenira celu aplikaciju za komponentama i bean-ovima. @SpringBootTest ucitava spring kontejner i spring context.
+ bean je u kontejneru pa moze da se anotira sa @Autowired i da se inject-uje u test klasu.
+
+Potrebno je da se konfigurise MockMvc. MockMvc je potreban da bi imitirao request i response da bi mogli da testiramo kako aplikacija hendluje requestove bez pokretanja aplikacije. To se radi tako sto se dodaje anotacija @AutoConfigureMockMvc. Anotacija @AutoConfigureMockMvc registruje MockMvc bean u spring kontejneru i taj bean ce biti objekat koji zivi u spring context-u pa u klasi dodajemo @atowire MockMvc.
+
+Metoda koja je anotirana sa @BeforeEach ili @AfterEach ce se pokretati pre (@BeforeEach) i posle (@AfterEach) svakog testa - svake metode sa anotacijom @Test.
+
+Kreiranje integration testa za GradeController metodu getForm()
+@GetMapping("/")
+public String getForm(Model model, @RequestParam(required = false) String id)
+
+Proces kreiranja integration testa:
+1. kreira se mock request
+2. request se prosledjuje metodi mockMvc.perform(requestBuilder)
+3. na metodu mockMvc.perform(requestBuilder) se vezuju provere  
+
+	// test za request na url "/" (moze biti sa i bez id-a) - kada se posalje ovajrequest controller treba da vrati view form - da se prikaze forma
+	@Test
+	public void testShowGradeForm() throws Exception {
+		// pravi se mock reuqest
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/?id=123");
+
+		// koristi se mockMvc da se izvrsi reuest. Kada se posalje request njega hendluje kontroler koji poziva service koji koristi repository koji vraca podatke service-u. Service vraca podatak controller-u i ovaj vraca view. Zato se ovde radi provera (assert) response statusa, da li je dobar view i da li je dobar model.
+		mockMvc.perform(requestBuilder)
+		.andExpect(status().is2xxSuccessful()) // import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+		.andExpect(view().name("form")) // ocekujemo da bude vracen view form
+		.andExpect(model().attributeExists("grade")); // ocekujemo da model ima atribut grade
+	}
+	
+	// test kada korisnik post requestom posalje ispravan grade objekat i on se submituje
+	@Test
+	public void testSuccessfulSubmission() throws Exception {
+		// kreira se mock post request
+		// u param() se prosledjuju iem propertya i value od kojih tyrebaju da se kreira objekat Grade 
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/handleSubmit")
+		.param("name", "Harry")
+		.param("subject", "Potions")
+		.param("score", "A+");
+
+		// sa perform() imitiramo post request i nakon uspernog submitovanja grade objekta ocekujemo redirect na /grade
+		mockMvc.perform(requestBuilder)
+		.andExpect(status().is3xxRedirection())
+		.andExpect(redirectedUrl("/grades"));
+	}
+
+	// test kada korisnik post requestom posalje grade obejata koji nije validan i submit ne treba da bude uspesan
+	// ako korisnik pokusa da submituje nevalidan objekat status koji se vraca je ipak 200 (OK) ali s ekorisnik preusmerava na view /form
+	@Test
+	public void testUnsuccessfulSubmission() throws Exception {
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/handleSubmit")
+		.param("name", "	")
+		.param("subject", "	")
+		.param("score", "	");
+
+		mockMvc.perform(requestBuilder)
+		.andExpect(status().is3xxRedirection())
+		.andExpect(view().name("form"));
+	}
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------- React -------------------------------------------------------------
+
+Frontend treba odvojiti od Backenda.
+Do sada je aplikacija radila tako sto korisnik posalje request, taj request hendluje backend, pripremi podatke, te podatke posalje na view koji koristi Thymeleaf da ih ubaci u HTML i to je sve na backendu. Nakon toga se html sa podacima salje na frontend klijentu. Cela aplikacija je: Thymeleaf i Spring Boot
+Frontend: Client >>>>>>>>>>>> request >>>>>>>>>>>> backend: Thymeleaf i Spring Boot 	
+																				||
+																				||
+																				\/
+Frontend: Client <<<<<<<<<<< response <<<<<<<<<<< backend: Thymeleaf i Spring Boot
+
+Ovo nije dobra praksa i aplikaciju treba razdvojiti na frontend aplikaciju i backend aplikaciju.
+Front-end aplikacija ce biti React aplikacija (na portu 3000) a backend aplikacija ce biti spring boot (na portu 8080).
+1. Klijent salje request
+2. taj request prihvata front-end aplikacija (react) i rutira ga na backend
+3. u backend aplikaciji je logika za baratanje i  skladistenje podataka. 
+4. backend obradjuje podatke i frontend aplikaciji salje podatke u JSON ili XML formatu. Uglavnom JSON
+5. frontend dobija podatke, spaja ih sa view-om i salje ih klijentu
+
+Ovo je dobra praksa jer jedan backend moze da komunicira sa raznim vrstama frontend aplikacija (react, angular ...). Komunikacija se odvija preko API-a.
+Ako se koristi iPhone telefon koristi se: Flutter ili Swift
+Ako se koristi Android telefon koristi se: Flutter ili Kotlin
+
+Od ove lekcije trebaju da se pokrecu dva VS code-a - jedan za fron a drugi za back.
+Front-end aplikacija je u folderu: \projects\grade-submission-react\grades-frontend
+U VS code-u se otvori ovaj folder i u terminalu se pozivaju komande:
+- npm install 	- da se instaliraju npm moduli
+- npm run 		- da se pokrene aplikacija koja je dostupla na localhost:3000
+
+1. klijent salje request na localhost:3000
+2. front aplikacija hendluje request od klijenta i salje request na localhosy:8080
+3. backend prihvata request od front-a i salje podatke (listu grade objekata u json-u)
+4. front prihvata podatke, popunjava tabelu i taj view salje klijentu
+4. front prihvata podatke, popunjava tabelu i taj view salje klijentu
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+-- Modul 2 - backend
+-- u modulu 2 (za REST lekcije) se koristi Contact projekat
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------- REST API ------------------------------------------------------------
+
+API je posrednik izmedju klijenta (korisnika) i sistema.
+
+REST API definise pravila za manipulaciju sa API-em
+Definise se:
+Resource - Resource je podatak koji moze da se imenuje. Npr. ako u bazi imamo tabelu Contacts onda je svaki kontakt resurs
+URI - URI identifikuje lokaciju resursa 
+Definisu se operacije kojima moze da se manipulise resursima: GET, POST, PUT, DELETE
+Definise se u kojem formatu se salju podaci - najcesce u JSON-u
+
+Korisnik salje GET request na URI, API definise operaciju kojom moze da se dodje do resursa, uzima se jedan red iz tabele i to je resurs, taj resurs se serijalizuje u JSON i salje se nazad korisniku.
+
+Npr. salje se GET request na host:port/123, API definise operaciju kojom moze da se dodje do resursa po id-u, backend ce nazad poslati resurs (red) iz tabele da Id = 123 u JSON formatu.
+
+Collection je grupa resursa. 
+
+Npr. salje se GET request na host:port/all, API definise operaciju kojom moze da se dodje do kolekcije resursa, backend ce nazad poslati resurs u formatu serijalizovanog niza JSON objekata
+
+-- Projekat Contacts
+Dobra praksa je da se kreira service interface (interface ContactService) u kome se definisu sve metode koje ce se implementirati u service klasi (class ContactServiceImpl implements ContactService). Na ContactServiceImpl se stavlja anotacija @Service.
+Posto ContactServiceImpl ima anotaciju @Service u spring boot-u cemo imati bean contactServiceImpl.
+
+Slucaj ako imamo dve klase koje implementiraju isti interfejs ContactService - kada se pokrene spring boot on ne zna od koje klase treba da kreira bean pa spring puca. Ovo se resava tako sto se u application.properties doda port i doda se anotacija koji service treba da se koristi za koji port.
+
+U application.properties se doda: server.port=8080
+Imamo dve Service klase koje implementiraju isti interfejs:
+@Service
+@ConditionalOnProperty(name = "server.port", havingValue = "9090")
+public class ContactServiceImpl implements ContactService {} 
+
+@Service
+@ConditionalOnProperty(name = "server.port", havingValue = "8080")
+public class BetterContactServiceImpl implements ContactService {} 
+
+ako se aplikacija pokrece na portu 8080 koristice se service BetterContactServiceImpl a ako se pokrece na 9090 koristice se ContactServiceImpl. Posto je u application.properties server.port=8080 koristice se servis ContactServiceImpl.
+
+REST operations:
+- GET - dohvatanje resursa
+- POST - kreiranje resursa
+- PUT - update resursa
+- DELETE - brisanje resursa
+
+https://docs.spring.io/spring-framework/docs/3.0.0.M3/reference/html/ch18s02.html
+Query Parameter vs URI Path 
+URI path je: /employees/delete/12				- id se salje kao deo uri/url putanje - @PathVariable
+Query parameter je: /employees/delete?id=12 	- id se salje kao parametar - @RequestParam
+
+
+/employees/delete?id=12
+@GetMapping("/delete")
+public String deleteContact(@RequestParam long id){}
+
+/employees/delete/12
+@GetMapping("/delete/{id}")
+public String deleteContact(@PathVariable("id") long id){}
+
+Request moze da se posalje i iz Command Prompt-a. Kuca se 'curl' komanda:>curl http://localhost:8080/contact/2  	i ovo ce vratiti {"id":"2","name":"Mika","phoneNumber":"456456"}
+
+@ResponseBody anotacija serijalizuje response u JSON i @ResponseBody moze da se stavi na nivou metode ili na nivou kontrolera. Ako se kontroler anotira sa @RestController onda @ResponseBody ne mora da se stavlja.
+
+@RestController = @Controller + @ResponseBody
+Kada se kontroler anotira sa @RestController svi respons-i koje vraca (objekti ili liste) ce biti serijalizovani u JSON.
+
+ResponseEntity - ovo nam omogucava da vratimo zajedno podatak i status kod.
+Umesto objekta Contact vracamo ResponseEntity i sa <Contact> definisemo tip podatka koji vracamo
+pre public Contact getContact(@PathVariable(value="id") String id){}
+posle public ResponseEntity<Contact> getContact(@PathVariable(value="id") String id)
+
+HTTP response status codes - https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
+------------ REST API: GET -------------
+Get request se koristi za dobijanje nekog resursa od backend-a.
+@RequestMapping(value = "/contact/all") - salje se get request na "/contact/all"
+public ResponseEntity<List<Contact>> getAllContacts() - ova metoda hendluje request koji se posalje na contact/all i kao rezultat vraca ResponseEntity koji u sebi enkapsulira listu/kolekciju Contact objekata i http status kod 200/OK.
+
+    @RequestMapping(value = "/contact/all")
+    public ResponseEntity<List<Contact>> getAllContacts(){
+        List<Contact> contacts = contactService.getContacts();
+        return new ResponseEntity(contacts, HttpStatus.OK);
+    } 
+	
+
+------------ REST API: POST ------------
+Post request se koristi za kreiranje resursa.
+Kada se doda post metoda koja kreira Contract objekat treba ukloniti konstruktor sa parametrima iz POJO klase. Kada se kreira objekat koristice se prazan konstruktor.
+Kada klijent salje podatke da se kreira novi Contact on salje JSON objekat a u potipisu funkcije je definisano da je parametar objekat klase Contact. Takodje, da bi repository dodao novi objekat u listu moramo da mu prosledimo objekat. Zato se ispred parametra stavlja anotacija @RequestBody i ovo deserijalizuje json objekat u POJO objekat.
+Ovo je slicno kada se na kontroler klasu stavi anotacija ResponseBody pa se sve sto se vraca kontroler serijalizuje u JSON. 
+
+    // http://localhost:8080/contact
+    @PostMapping(value = "/contact")
+    public ResponseEntity<HttpStatus> createContract(@RequestBody Contact contact){
+        contactService.saveContact(contact);
+        return new ResponseEntity<>(null, HttpStatus.CREATED);
+    }
+
+Spring boot koristi prazan konstruktor da kreira objekat a nakon toga koristi setere da setuje podatke u property-e.
+JSON koji se salje je: { "name": "Pera", "phoneNumber": "123" }. Ovaj json se deserijalizuje u Contacty objekat i to obavlja spring boot. Spring boot koristi setere iz POJO klase ali samo ako se postuje konvencija imenovanja pa kada se posalje podatak 'name' on zna da je seter za to setName(). Podatak 'phoneName' ima seter setPhoneName().
+ 
+
+@ResponseBody - serijalizuje objekte (koje vraca metoda) u JSON
+@RequestBody - deserijalizuje JSON podatak (koji dolazi od klijenta) u POJO objekat
+
+
+------------ REST API: PUT ------------
+Kada se radi update resursa u body-u se salje JSON objekat (@RequestBody) sa novim podacima a kao @PathVariable se salje id tog objekta.
+CotactService nalazi index po id-u i u listu contact objekata na taj index setuje novi objekat preko starog.
+Anotacija @RequestBody deserijalizuje json u objekat klase Contact i taj objekat se snima u listu contacts.
+Kada se obavi update, onome ko je poslao request na API, salje se nazad ResponseEntity koji u sebi ima novi objekat i http status '200 OK'. 
+Prosledjenom contact-u se setuje id koji je prosledjen jer kada se dobije @RequestBody parametar spring boot kreira novi objekat sa podacima name i phoneNumber a taj novi objekat dobija novi id jer je u JSON-u prosledjeno samo name i phoneNumber. Ovako ce spring boot kreirati novi objekat sa starim id-em i novim (update) podacima u name i phoneNumber.
+
+    @PutMapping("/contact/{id}")
+    public ResponseEntity<Contact> updateContact(@PathVariable String id, @RequestBody Contact contact) {
+        return new ResponseEntity<>(contact, HttpStatus.OK);
+    }
+
+
+------------ REST API: DELETE ------------
+Kada sse salje delete request brise se resurs po id-u.
+Kao @PathVariable se prosledjuje id, kontroler poziva servis, servis trazi index po tom id-u i poziva metodu iz repozitorijuma da izbrise resurs na tom indeksu.
+
+    // DELETE - http://localhost:8080/contact/2
+    @DeleteMapping("/contact/{id}")
+    public ResponseEntity<HttpStatus> deleteContact(@PathVariable String id) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------- Exception handling --------------------------------------------------------
+
+@ControllerAdvice - class-level annotation that allows you to define global exception handlers
+@ExceptionHandler - method-level annotation that defines an exception handler - ova anotacija se dodaje na metodu u kontroleru
+
+U root-u projekta se kreira klasa ApplicationExceptionHandler koja se anotira sa @ControllerAdvice koja se koristi za globalno hendlovanje exception-a. U njemu je metoda koja je anotirana sa @ExceptionHandler. Ovoj metodi se prosledjuje objekat ContactNotFoundException koji nosi poruku u kojoj je id contact-a koji je trazio klijent a koji ne postoji u listi. 
+ErrorResponse je klasa koja dobija poruku i setuje je u svoj property ErrorResponse a u svoj drugi property upisuje timestamp.
+
+@ControllerAdvice
+public class ApplicationExceptionHandler {
+    @ExceptionHandler
+    public ResponseEntity<Object> handleContactNotFoundException(ContactNotFoundException ex){
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    };
+}
+
+public class ErrorResponse {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+    private String message;
+    private LocalDateTime timestamp;
+    
+    public ErrorResponse(String message) {
+        this.message = message;
+        this.timestamp = LocalDateTime.now();
+    }
+	// geteri i seteri
+}
+
+Ova klasa dole ima metodu handleMethodArgumentNotValid() koja hendluje sve exceptione koji se bace kada objekat koji se posalje nije validan da se doda u listu. U kontroler metodu createContact() se dodaje @Valid anotacija pa ako prosledjeni objekat nije validan (zbog validacije field-a) baca se exception i to hvata klasa ApplicationExceptionHandler koja je globalni hendler exceptiona zbog anotacije @ControllerAdvice. POdatak zbog cega nije proslaj validacija nosi objekat BindingResult.
+    @PostMapping("/contact")
+    public ResponseEntity<HttpStatus> createContact(@Valid @RequestBody Contact contact) {
+        contactService.saveContact(contact);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+
+@ControllerAdvice
+public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler{
+  
+    @ExceptionHandler(ContactNotFoundException.class)
+    public ResponseEntity<Object> handleContactNotFoundException(ContactNotFoundException ex) {
+      ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getLocalizedMessage()));  
+      return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+            HttpHeaders headers, HttpStatus status, WebRequest request) {
+        List<String> errors = new ArrayList<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> errors.add(error.getDefaultMessage()));
+        return new ResponseEntity<>(new ErrorResponse(errors), HttpStatus.BAD_REQUEST);
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------- API Documentation --------------------------------------------------------
+
+Dokumentacija sluzi da korisnik razume kako moze da koristi API.
+OpenAPI je standardizovani format koji opisuje moguznosti RESR API-a.
+OpenAPI specifikaciju moze da procita kompjuter i da od nje kreira dokument koji covek moze da cita.
+
+OpenAPI specifikacija sadrzi:
+1. Path - putanju za neku operaciju/request i sta ova operacija radi
+2. Request parameters - parametri koji su potrebni za operaciju da bi bila uspesna
+3. Response Description - opis response-a kakav ce klijent dobiti ako posalje dobar request 
+
+OpenAPI dependency je:
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.9</version>
+		</dependency>	
+
+Kada se instalira ovaj dependency dovoljno je otici na http://localhost:8080/v3/api-docs i dobicemo OpenAPI specifikaciju:
+"/contact/{id}": {										<==== 1. Path
+					"get": {
+					"tags": [
+						"contact-controller"
+					],
+					"operationId": "getContact",
+					"parameters": [ 					<==== 2. Request parameters
+									{
+										"name": "id",
+										"in": "path",
+										"required": true,
+										"schema": {
+											"type": "string"
+										}
+									}
+					],
+					"responses": {						<==== 3. Response Description
+						"200": {
+							"description": "OK",
+							"content": {
+								"*/*": {
+									"schema": {
+									"$ref": "#/components/schemas/Contact"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+
+Na url-u http://localhost:8080/v3/api-docs se dobija OpenAPI specifikacija koju kreira dependencu koji skenira kod i kreira specifikaciju.
+Na url-u http://localhost:8080/swagger-ui/index.html se dobija specifikacija koja je laksa za citanje.
+
+Ono sto s eprikazuje u browswer-u na swagger url-u moze da se podesava. Kreira se folder config i u njemu @Configuration klasa u kojoj se konfigurise @Bean OpenAPI.
+java\com\ltp\contacts\config\OpenApiConfig.java
+
+package com.ltp.contacts.config;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.*;
+
+@Configuration
+public class OpenApiConfig {
+    @Bean
+    public OpenAPI openApi() {
+        Contact contactInfoForOpenApi = new Contact();
+        contactInfoForOpenApi.setEmail("neki-mail@google.com");
+        contactInfoForOpenApi.setName("Ime Prezime");
+
+        Info info = new Info()
+        .title("Contacts application")
+        .contact(contactInfoForOpenApi)
+        .version("0.5")
+        .description("Contact application OpenAPI specs");
+        
+        return new OpenAPI().info(info);
+    }
+}
+
+Sa @tag anotacijom moze da se doda opis sta radi metoda. Ovo ce se videti na swgger-ui stranici.
+Ovo dole se dodaje u Contact kontroler. 
+@Tag(name = "Uzimanje svih contact-a")
+@GetMapping(value = "/contact/all"){}
+
+Moze da se doda @tag i na kontroler - @Tag(name = "ContactController - Create and retrieve contacts")
+Na metode moze da se doda i @Operations - @Operation(summary = "Retrieves contacts", description = "Provides a list of all contacts")
+
+@ApiResponse documents how each operation responds.
+@ApiResponse(responseCode = "200", description = "Successful retrieval of contacts", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Contact.class))))
+This reads like english. The operation will:
+1. Return a status code of 200.
+2. Retrieve all contacts from the datastore.
+3. Return a JSON Array of Contact resources.
+
+Kada metoda moze da (u zavisnosti od ishoda) vrati razlicite http statuse onda se stavlja anotacija @ApiResponses i u njoj moguci @ApiResponse sa mogucim responseCode.
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "404", description = "Contact doesn't exist", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "200", description = "Successful retrieval of contact", content = @Content(schema = @Schema(implementation = Contact.class))),
+    })
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+Refaktorizacija pre implementacije SQL-JPA
+1. kreira se folder web (java\com\ltp\gradesubmission\web) i GradeControler se premesta u ovaj folder. Ovaj kontroler je anotiran sa @Controller i sluzi za web aplikaciju, odnosno za hendlovanje requestova koji dolaze na url /grades i klijentu vraca view sa modelom koji nosi podatke. Za inject podataka u view koristi se Thymeleaf.
+2. kreira se rest kontroler (ApiGradeController.java) u java\com\ltp\gradesubmission\controller i anotira se sa @RestController. Ovaj kontroler je web servis i sluzi za hendlovanje API requestova.
+3. Kreira se folder java\com\ltp\gradesubmission\entity i u njega se premesta POJO klasa Grade.java. U ovom folderu ce biti i Stusent i Course entity.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------- SQL Database - Spring Boot JPA --------------------------------------------------
+
+grade-submission API je web servis koji sluzi klijentu da dodje do resursa koji su u sql bazi.
+JPA omogucava spring boot aplikasciji da komunicira sa relacionim bazama.
+JPA znaci: 'Java Persistence API'
+
+---------------- H2 ----------------
+
+H2 baza se instalira i koristi za razvoj. H2 se nalazi u memoriji i svaki put kada se aplikazija zaustavi ona se brise.
+
+Dodavanje H2 i JPA dependency-a:
+Ide se u pom.xml, desni klik pa 'Add starters...'. U pretrazi se kuca H2 i JPA i oni se dodaju u dependecy-e.
+
+Ako se dependency ukopira sa maven repozitorijuma tamo je tag <scope>tes</scope> sto znaci da ce H2 biti dostupna samo za test. Ovo treba promeniti na runtime jer je H2 potrebna u toku runtime-a. <scope>runtime</scope>
+
+U application.properties se dodaje:
+spring.h2.console.enabled=true			- ovo omogucava da se u browseru vidi sadrzaj H2 baze
+spring.h2.console.path=/h2				- putanja koja treba da se kuca u browseru da bi se la konzola
+spring.datasource.url=jdbc:h2:mem:grade-submission	- ovako odredjujemo na kojoj lokaciji ce biti sadrzaj baze
+
+pregled sadrzaja u browser-u:
+na http://localhost:8080/h2 se dobija login i onda se u 'JDBC URL' kuca 'jdbc:h2:mem:grade-submission' i videce se sadrzaj baze
+
+---------------- CommandLineRunner -----------
+CommandLineRunner se koristi da se H2 baza popuni sa podacima pri startu aplikacije.
+Posto se H2 baza prazni svaki put kada se aplikacija restartuje na entry-point klasu (GradeSubmissionApplication) se dodaje da implementira interfejs CommandLineRunner.
+Iz ovog interfejsa mora da se primeni meroda run() u koju se dodaje kod koji ce se izvrsiti pri svakom pokretanju aplikacije. Prolazi se kroz listu students i koristi se StudentRepository da se studenti dodaju u bazu.
+
+// kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao paremetri 
+@AllArgsConstructor
+@SpringBootApplication
+public class GradeSubmissionApplication  implements CommandLineRunner {
+
+	public static void main(String[] args) {
+		SpringApplication.run(GradeSubmissionApplication.class, args);
+	}
+
+	@Autowired
+	StudentRepository studentRepository;
+
+	@Override
+	public void run(String... args) throws Exception {
+        Student[] students = new Student[] {
+            new Student(1L, "Harry Potter", LocalDate.parse(("1980-07-31"))),
+            new Student(2L, "Ron Weasley", LocalDate.parse(("1980-03-01"))),
+            new Student(3L, "Hermione Granger", LocalDate.parse(("1979-09-19"))),
+            new Student(4L, "Neville Longbottom", LocalDate.parse(("1980-07-30"))) 
+        };
+
+		for (Student student : students) {
+			studentRepository.save(student)
+		}
+	}
+}
+
+
+Spring JPA nam obezbedjuje ORM (Object Relation Maper) layer koji se koristi za komunikaciju aplikacije i baze.
+Spring Data JPA po defaultu koristi Hibernate implementaciju.
+
+Java klase/objekti koji se anotiraju sa @Entity su objekti kojima JPA moze da barata. JPA ce od jednog objekta kreirati tabelu.
+Kada JPA-u kazemo da @Entity student treba da se snimi u bazu taj request s esalje ORM-u koji interno kreira tabelu student.
+
+JPA specifikacija zahteva da svaja klasa koja ima anotaciju @Entity mora da ima prazan konstruktor. 
+
+
+Na POJO klasu se dodaju anotacije
+@Entity -- ovo je entity tj. od ove klase kreiraj tabelu
+@Table(name = "student") - ime tabele ce biti 'student'
+@Getter  	- ova anotacija je iz lombok biblioteke - kada se ovo doda ne moraju da se kreiraju geteri i seteri u POJO klasi
+@Setter		- lombok kreira setere
+@AllArgsConstructor - lombok kreira konstruktor sa svim parametrima
+@NoArgsConstructor	- lombok kreira prazan konstruktor
+public class Student {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id") 
+    private Long id;
+    
+	@Column(name = "name", nullable = false) -- ime kolone ce biti 'name' i ovo je NOT NULL kolona
+    @NonNull
+	private String name;
+	
+	@NonNull
+    @Column(name = "birth_date", nullable = false) -- konvencija nalaze da se camel case ime field-a ovako pretvara u ime kolone pa ce hibernate znati koja kolona predstavlja koji field
+    private LocalDate birthDate;
+	
+    // jedan objekat student moze biti vezan (imati listu) za vise grade objekata
+    // mappedBy = "student" - ovime kazemo da je veza izmedju Student-a i Grade-a mapirana sa property-em "student" u grade objektu 
+    // kada se ovako mapira veza izmedju Student-a i Grade--a nece se kreirati join tabela STUDENT_GARADE koju bi hibernate kreirao da nema ovog mapiranja
+    // @JsonIgnore se dodaje jer ne zelimo da grades listu dodajemo u JSON. Svaki grade ima vezu sa studentom pa se za togstudenta uzima grade pa opet taj grade ima studenta i tako se ulazi u beskonacnu petlju. Zato se ovo iskljucuje iz rezultata i samo sluzi za Bidrectional vezu
+    // cascade = CascadeType.ALL - ako se obrise student iz tabele student onda redovi u grade tabeli sa tim student_id nisu potrebni pa se i ono kaskacno brisu
+    @JsonIgnore
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL) 
+    private List<Grade> grades;
+}
+
+Na entity moze da se stavi i anotacija @RequiredArgsConstructor  koja znaci da prilikom kreiranja objekta moraju da se proslede podaci za property-e koji su obavezni, tj. oni koji su anotacijom @NonNull.
+
+Proces snimanja java objekta student u bazu:
+1. Kreiranje student @entity-a. POJO Student se anotira sa @Entity
+2. Svaki field u @Entity se mapira na kolonu u tabeli.
+3. primarni kljuc jedinstveno identifikuje svaki rekord u tabeli - svaki entity mora de ima primarni kljuc
+4. Spring JPA nam obezbedjuje CrudREpository iz kojeg koristimo CRUD metode za rad sa bazom
+5. Salje se POST request u kome je kao payload nosu student objekat u json formatu. Ovaj objekat nema id, njega ce kreirati baze.
+6. Koristi se CrudREpository metoda save(entity) da se objekat snimi u bazu 
+7. U pozadini se koristi ORM da kreira sql statement koji insertuje red u bazu
+8. kreira se StudentRepository interface koji extend-uje CrudRepository. U StudentRepository se definisu metode koje ce se koristiti za rad sa bazom.
+9. U servis StudentService se dodaje @Autowired StudentRepository i kada se aplikacija pokrene StudentRepository su u spring kontejner ucitava kao bean i dostupne su nam sve metode koje on nasledjuje od CrudRepository-a.
+
+Da bi imali repository koji koristi ORM treba da se kreira repository interface koji extend-uje CrudRepository
+interface StudentRepository extends CrudRepository<Student, Long> - prvi parametar je entitet koji se snima u bazu a drugi je tip podatka id-a.
+Kada se pokrene aplikacija spring od interfejsa StudentRepository kreira bean koji od CrudRepository nasledjuje sve metode za rad sa bazom.
+
+    // 1. klijent posalje post request u body-u salje JSOM objekat sa podacima za studenta. 
+    // 2. @RequestBody uzima taj json i deserijalizuje ga u Student objekat. 
+    // 3. Zatim se taj objketa prosledjuje servisu koji poziva repository-u i u metodu save(student) prosledjuje objekat 
+    // 4. repository koristi CRUD metode koje je nasledio od CrudRepository-a i student entity snima u bazu uz pomoc ORM-a
+    // 5. ORM layer mapira property-e objekta na kolone i kreira sql statement za insert
+
+// kada se pozove CrudRepository save() metoda ona vraca objekat koji je insertovan u bazu
+
+Metode u CrudRepository su nazvane po konvenciji. Ako se prati konvencija imenovanja onda ce spring JPA query builder moci iz imena da izvuce ime kolone i moci ce da napravi query.
+findByStudentId(Long id)
+findBy - akcija
+StudentId - imena field-a po kome se trazi i ovo mora da odgovara imenima kolona. StudentId je student_id
+
+Ovo je bitno kada pisemo repository interface koji extend-uje CrudRepository i to za custom metode koje pisemo a ne one koje se nasledjuju iz CrudREpository-a.
+@Repository
+public interface GradeRepository extends CrudRepository<Grade, Long> {
+    Grade findByStudentIdAndCourseId(Long studentId, Long courseId);
+}
+
+--------- Lombok ---------
+Lombok minimizuje potrebu za boilerplate kodom
+
+Dependency je:
+<dependency>
+	<groupId>org.projectlombok</groupId>
+	<artifactId>lombok</artifactId>
+	<scope>provided</scope>
+</dependency>
+
+Ako se koristi VS code mora da se instalira i ekstenzija: "Lombok Annotations Support for VS Code"
+Kada se instalira biblioteka Lombok na POJO klasu se dodaju anotacije @getter i Setter i u POJO klasama ne moraju vise da se kreiraju geteri i seteri. Namea boilerplate koda.
+Lombo moze da kreira prazan konstruktor i konstruktor sa svim parametrima kada se dodaju anotacije NoArgsConstructor i AllArgsConstructor.
+
+// kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao paremetri 
+@AllArgsConstructor
+
+------------- Undirectional Relationship -------------
+Undirectional Relationship znaci da se vise redova iz child tabele vezuje za jedan red u parent tabeli.
+
+Svaki student moze imati vise ocena pa u grades tabeli moze da se nadje vise redova sa istim student_id. U tabeli grades student_id je foreign key koji referencira kolonu students.id. 
+
+U Grade entitetu se kreira field Student i sa @ManyToOne kazemo je to veza Many-to-One relacija.
+    // Svaki student moze imati vise ocena pa u grades tabeli moze da se nadje vise redova sa istim student_id. U tabeli grades student_id je foreign key koji referencira kolonu students.id
+    // ovo je ManyToOne relacija i znaci da jedan Student ima vide grade
+    // u @ManyToOne relacijama child tabela radi sa FK
+    // Many grades will be associated with one student
+    @ManyToOne(optional = false) // nije opcioni tj. podatak student je obavezan za svaki grade. (optional = false) je runtime instrukcija pa ako kontroler posalje grade bez studenta ovo ce blokirati taj zahtev pre nego sto posalje zahtev u vazu
+    @JoinColumn(name = "student_id", referencedColumnName = "id") // grade FK kolona grade.student_id referencira kolonu student.id
+    private Student student;
+
+------------- Bidirectional Relationship -------------
+Bidirectional relacija je One-to-Many relacija.
+U student tabeli je anotacija @OneToMany a u grade tabeli je anotacija @ManyToOne.
+@OneToMany student tabela - jedan red u student tabeli moze biti vezan sa vise redova u grade tabeli.
+@OneToMany student tabela - cita se: one student belongs to many grades
+
+@MenyToOne grade tabela - vise redova u grade tabeli moze biti vezano za jedan red u student tabeli 
+@MenyToOne grade tabela - cita se: many grades belongs to one student
+
+Ovo dole je u Student entitetu    // jedan objekat student moze biti vezan (imati listu) za vise grade objekata
+    // mappedBy = "student" - ovime kazemo da je veza izmedju Student-a i Grade-a mapirana sa property-em "student" u grade objektu 
+    // kada se ovako mapira veza izmedju Student-a i Grade--a nece se kreirati join tabela STUDENT_GARADE koju bi hibernate kreirao da nema ovog mapiranja
+    @OneToMany(mappedBy = "student") 
+    private List<Grade> grades;
+
+Kada se odredjuje gde treba da ide foreign key treba da se gleda koja tabela nema smisla bez tog kljuca.
+Ako se gleda veza izmedju tabela courses i grades tabela grades nema smisla bez course_id podatka pa je course_id FK tj. referenca ka PK u course tabeli.
+
+U grades treba da vude property grades i on treba da bude @ManyToOne tj. vise redova u grade tabeli moze da bude vezano za jedan red u courses tabeli.
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------- Optional ------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+

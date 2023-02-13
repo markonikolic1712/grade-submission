@@ -7,8 +7,9 @@ import com.ltp.gradesubmission.exception.StudentNotFoundException;
 
 public interface StudentService {
     
-    Student getStudent(int id) throws StudentNotFoundException;
+    Student getStudent(Long id) throws StudentNotFoundException;
     List<Student> getStudents() throws StudentNotFoundException;
-    void createStudent(Student student) throws StudentNotFoundException;
-    void deleteStudent(int id) throws StudentNotFoundException;
+    Student saveStudent(Student student) throws StudentNotFoundException;
+    void deleteStudent(Long id) throws StudentNotFoundException;
+    void updateStudent(Long id, Student newStudent) throws StudentNotFoundException;
 }
