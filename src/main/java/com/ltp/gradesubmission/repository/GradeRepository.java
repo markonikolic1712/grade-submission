@@ -1,6 +1,9 @@
 package com.ltp.gradesubmission.repository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.Transactional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -9,7 +12,18 @@ import com.ltp.gradesubmission.entity.Grade;
 @Repository
 public interface GradeRepository extends CrudRepository<Grade, Long> {
 
-    Grade findByStudentIdAndCourseId(Long studentId, Long courseId);
+    Optional<Grade> findByStudentIdAndCourseId(Long studentId, Long courseId);
+
+    // definisemo metodu koja ce se koristiti za brisanje reda u grade tabeli i to po studentId i courseId
+    @Transactional
+    void deleteByStudentIdAndCourseId(Long studentId, Long courseId);
+
+    // metoda koja vraca listu ocena za jednog studenta
+    List<Grade> findByStudentId(Long studentId); 
+
+    // metoda za uzimanje ocena za jedan courseId
+    List<Grade> findByCourseId(Long courseId);
+
     List<Grade> findAll();
     
 /*

@@ -1311,6 +1311,10 @@ public interface GradeRepository extends CrudRepository<Grade, Long> {
     Grade findByStudentIdAndCourseId(Long studentId, Long courseId);
 }
 
+Na repository metode koje su namenjene za brisanje (deleteBy... metode) traba da se doda anotacija @Transactional da ne bi dobili exception - TransactionRequiredException.
+Ovako je transakcija brisanja deo novo kreirane transakcije i nema ovog exception-a.
+Ova anotacija se dodaje na metode na repository interface-u.
+
 --------- Lombok ---------
 Lombok minimizuje potrebu za boilerplate kodom
 
@@ -1371,6 +1375,29 @@ U grades treba da vude property grades i on treba da bude @ManyToOne tj. vise re
 ------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------- Optional ------------------------------------------------------------
 
+Svrha  koriscenja Optional objekta je prevencija NullPointerException-a.
+Optional je kontejner oko objekta koji je moguce da bude null.
+
+- ovo je metoda iz StudentService koja poziva repository
+    @Override 
+    public Student getStudent(Long id) {
+        return studentRepository.findById(id).get();
+    }
+Metoda findById() iz CrudREpository-a vraca Optional<Student> i tu je entity wrapp-ovan u Optional objekat. Kada se koristi metoda get() (iz CrudREpository-a) onda se na silu izvlaci objekat Student iz onoga sto vraca repository i ovde smo u opasnosti da dobijemo NullPointerException.
+Da bi se ovo izbeglo ne treba koristiti get() nego prvo proveriti da li objekat/value student postoji u Optional objekat pa nakon toga ga uzeti sa get().
+Da li value postoji proverave sa isPresent().
+    @Override
+    public Student getStudent(Long id) {
+        Optional<Student> student = studentRepository.findById(id);
+        // proverava se da li postoji value u optional objektu - ako postoji onda se sa get() uzima i vraca a ako ne postoji onda se baca izuzetak
+        if(student.isPresent()) {
+            return student.get();
+        } else {
+            throw new StudentNotFoundException(id);
+        }
+    }
+
+Kada iz repositorijuma iz neke metode, vracamo Optional<Student>, to je upozorenje onome ko koristi tu metode da moze da dobije null umesto oblekta pa morz da se pobrine za tu mogucnost tj. da uradi proveru na null pre upotrebe.
 
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------

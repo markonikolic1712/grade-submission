@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +13,9 @@ import com.ltp.gradesubmission.Constants;
 import com.ltp.gradesubmission.entity.Course;
 import com.ltp.gradesubmission.entity.Grade;
 import com.ltp.gradesubmission.entity.Student;
+import com.ltp.gradesubmission.exception.CourseNotFoundException;
 import com.ltp.gradesubmission.exception.GradeNotFoundException;
+import com.ltp.gradesubmission.exception.StudentNotFoundException;
 import com.ltp.gradesubmission.repository.CourseRepository;
 import com.ltp.gradesubmission.repository.GradeRepository;
 import com.ltp.gradesubmission.repository.StudentRepository;
@@ -28,8 +32,13 @@ public class GradeServiceImpl implements GradeService {
     CourseRepository courseRepository;
 
     @Override
-    public Grade getGrade(Long studentId, Long courseId) throws GradeNotFoundException {
-        return gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+    public Grade getGrade(Long studentId, Long courseId) {
+        Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+        if(grade.isPresent()) {
+            return grade.get();
+        } else {
+            throw new GradeNotFoundException(studentId, courseId);
+        }
     }
 
     // kada se kreira/snima grade record podaci studentId i courseId se salju kao u url-u (@PathVariable) a score se salje kao json u body-u (@RequestBody)
@@ -47,40 +56,46 @@ public class GradeServiceImpl implements GradeService {
     }
 
     @Override
-    public Grade updateGrade(String score, Long studentId, Long courseId) throws GradeNotFoundException {
+    public Grade updateGrade(String score, Long studentId, Long courseId) {
         // kada se radi update grade recorda prvo se dohvati grade koji postoji, zatim mu se menja score podatak i zatim se snima u bazu
         // posto ovaj grade vec postoji u bazi, kada se radi save() CrudRepository nece kreirati novi record nego ce uraditi update
-        Grade grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
-        grade.setScore(score);
-        return gradeRepository.save(grade);
+        Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+        if(grade.isPresent()){
+            Grade unwrappedGrade = grade.get(); // uzima se grade/value iz optional-a
+            unwrappedGrade.setScore(score); // update-uje se score
+            return gradeRepository.save(unwrappedGrade); // snima se novi grade preko starog
+        } else {
+            throw new GradeNotFoundException(studentId, courseId);
+        }
     }
 
     @Override
-    public void deleteGrade(Long studentId, Long courseId) throws GradeNotFoundException {
-        // TODO Auto-generated method stub
-        
+    public void deleteGrade(Long studentId, Long courseId) {
+        // uzima se grade sa trazenim studentId i courseId a zatim se proverava da li postoji
+        Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+        if(grade.isEmpty()) throw new GradeNotFoundException(studentId, courseId);
+
+        gradeRepository.deleteByStudentIdAndCourseId(studentId, courseId);
     }
 
     @Override
-    public List<Grade> getStudentGrades(Long studentId) throws GradeNotFoundException {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Grade> getStudentGrades(Long studentId) {
+        return gradeRepository.findByStudentId(studentId);
     }
 
     @Override
-    public List<Grade> getCourseGrades(Long courseId) throws GradeNotFoundException {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Grade> getCourseGrades(Long courseId) {
+        return gradeRepository.findByCourseId(courseId);
     }
 
     @Override
-    public List<Grade> getAllGrades() throws GradeNotFoundException {
-        return gradeRepository.findAll();
+    public List<Grade> getAllGrades() {
+        return (List<Grade>) gradeRepository.findAll();
     }
 
     static Grade unwrapGrade(Optional<Grade> entity, Long studentId, Long courseId) {
         if (entity.isPresent()) return entity.get();
-        else throw new GradeNotFoundException(studentId);
+        else throw new GradeNotFoundException(studentId, courseId);
     }
 
 

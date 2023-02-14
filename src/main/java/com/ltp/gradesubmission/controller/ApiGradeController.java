@@ -72,6 +72,33 @@ public class ApiGradeController {
         return new ResponseEntity<>(gradeService.updateGrade(grade.getScore(), studentId, courseId), HttpStatus.OK);
     }
 
+     // radi se delete grade record-a u bazi - @RequestBody nosi novi podatak score. U servisu se prvo pronalazi red po studentId i courseId a zatim se tom redu upisuje novi score
+    // DELETE - http://localhost:8080/api/grade/student/3/course/2
+    // DELETE - /grade/student/{studentId}/course/{courseId}
+    @DeleteMapping("/student/{studentId}/course/{courseId}")
+    public ResponseEntity<Grade> deleteGrade(@PathVariable("studentId") Long studentId, @PathVariable("courseId") Long courseId) {
+        System.out.println("----------- REST API - deleteGrade() -----------");
+        gradeService.deleteGrade(studentId, courseId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    } 
+    
+    // uzimanje svih ocena za nekog studenta
+    // GET - http://localhost:8080/api/grade/student/{studentId}
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<List<Grade>> getStudentGrades(@PathVariable("studentId") Long studentId){
+        return new ResponseEntity<>(gradeService.getStudentGrades(studentId), HttpStatus.OK);
+    }
+
+
+    // uzimanje svih ocena za neki kurs
+    // GET - http://localhost:8080/api/grade/course/{courseId}
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<List<Grade>> getCourseGrades(@PathVariable("courseId") Long courseId){
+        return new ResponseEntity<>(gradeService.getCourseGrades(courseId), HttpStatus.OK);
+    }
+
+
+
     // @GetMapping("/{id}")
     // public ResponseEntity<Grade> getGradeById(@PathVariable("id") Long id) {
     //     System.out.println("----------- REST API - getGradeById() -----------");

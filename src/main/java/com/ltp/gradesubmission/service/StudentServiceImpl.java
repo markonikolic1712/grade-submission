@@ -26,7 +26,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student getStudent(Long id) {
-        return studentRepository.findById(id).get();
+        Optional<Student> student = studentRepository.findById(id);
+        // proverava se da li postoji value u optional objektu - ako postoji onda se sa get() uzima i vraca a ako ne postoji onda se baca izuzetak
+        if(student.isPresent()) {
+            return student.get();
+        } else {
+            throw new StudentNotFoundException(id);
+        }
     }
 
     @Override

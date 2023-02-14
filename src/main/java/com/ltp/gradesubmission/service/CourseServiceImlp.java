@@ -19,14 +19,15 @@ public class CourseServiceImlp implements CourseService {
     CourseRepository courseRepository;
 
     @Override
-    public Course getCourse(Long id) throws CourseNotFoundException {
+    public Course getCourse(Long id) {
         Optional<Course> course = courseRepository.findById((long) id);
-        try {
-            if(course.isPresent()) return course.get();
-        } catch (Exception e) {
-            new CourseNotFoundException(id);
+
+        if(course.isPresent()) {
+            return course.get();
         }
-        return null; 
+        else {
+            throw new CourseNotFoundException(id);
+        }
     }
 
     @Override
