@@ -372,7 +372,7 @@ Spring boot anotacije za validaciju:
 
 @NotBlank(message = "Name cannot be blank") - NotBlank znaci da je error ako korisnik unese space
 private String name;
-@NotBlank(message = "Name cannot be blank")
+@NotBlank(message = "Subject cannot be blank")
 private String subject;
 
 U kontroler se dodaje i u parametrima BindingResult mora da bude posle @Valid. Nakon validacije BindingResult nosi rezultat validacije.
@@ -393,7 +393,7 @@ public String submitForm(@Valid Grade grade, BindingResult result){
 
 Kreiranje custom validacija - kreira se interfejs
 Dole se kreira validacija polja score iz grade objekta
-@Targer({METHOD, FIELD}) - na sta se primenjuje validacija
+@Target({METHOD, FIELD}) - na sta se primenjuje validacija
 @Constraint(validatedBy = ScoreValidator.class) // sa ovime kazemo da ce Score interfejs biti constraint validacija a da ce logika za proveru biti u klasi ScoreValidator.class
 @Retention(RUNTIME) - period trajanja - validacija treba da traje dok aplikacija radi
 public @interface ValidScore{}
@@ -411,7 +411,7 @@ public class ScoreValidator implements ConstraintValidator <Score, String>  {
 }
 
 Proces custom validatora je sledeci:
-1. u POJO klasi se stavlja anotacija @Score(message = "Score must be a letter grade")
+1. u POJO klasi, na property score, se stavlja anotacija @Score(message = "Score must be a letter grade")
 2. kreira se interfejs 'public @interface Score' na kojem se stavlja anotacija @Constraint(validatedBy = ScoreValidator.class) cime se kaze da je logika za validaciju u klasi ScoreValidator
 3. U klasi ScoreValidator se implementira interfejs ConstraintValidator: implements ConstraintValidator <Score, String> gde je Score anotacija @Score u POJO klasi a String je tip podatka koji se validira
 ------------------------------------------------------------------------------------------------------------------------------
@@ -1314,6 +1314,26 @@ public interface GradeRepository extends CrudRepository<Grade, Long> {
 Na repository metode koje su namenjene za brisanje (deleteBy... metode) traba da se doda anotacija @Transactional da ne bi dobili exception - TransactionRequiredException.
 Ovako je transakcija brisanja deo novo kreirane transakcije i nema ovog exception-a.
 Ova anotacija se dodaje na metode na repository interface-u.
+
+// na tabelu se dodaje unique constraint da kombinacija podataka student_id i course_id mora da bude jedinstvena 
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "grade", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"student_id", "course_id"})
+})
+public class Grade {}
+
+@UniqueConstraint se dodaje na tabelu/entity i kada korisnik pokusa da insertuje istu kombinaciju student_id/course_id baca se DataIntegrityViolationException.
+
+u course entity se dodaje da je podatak u code tabeli unique - ovo se dodaje na kolonu
+    @NonNull
+    @Column(name = "code", nullable = false, unique = true)
+    private String code;
+
+Kada korisnik pokusa da insertuje course sa istim code-om baca se izuzetak DataIntegrityViolationException.
 
 --------- Lombok ---------
 Lombok minimizuje potrebu za boilerplate kodom

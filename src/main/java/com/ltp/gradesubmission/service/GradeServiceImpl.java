@@ -2,20 +2,12 @@ package com.ltp.gradesubmission.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
-
-import javax.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ltp.gradesubmission.Constants;
 import com.ltp.gradesubmission.entity.Course;
 import com.ltp.gradesubmission.entity.Grade;
 import com.ltp.gradesubmission.entity.Student;
-import com.ltp.gradesubmission.exception.CourseNotFoundException;
 import com.ltp.gradesubmission.exception.GradeNotFoundException;
-import com.ltp.gradesubmission.exception.StudentNotFoundException;
 import com.ltp.gradesubmission.repository.CourseRepository;
 import com.ltp.gradesubmission.repository.GradeRepository;
 import com.ltp.gradesubmission.repository.StudentRepository;
@@ -34,19 +26,15 @@ public class GradeServiceImpl implements GradeService {
     @Override
     public Grade getGrade(Long studentId, Long courseId) {
         Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
-        if(grade.isPresent()) {
-            return grade.get();
-        } else {
-            throw new GradeNotFoundException(studentId, courseId);
-        }
+        return unwrapGrade(grade, studentId, courseId);
     }
 
     // kada se kreira/snima grade record podaci studentId i courseId se salju kao u url-u (@PathVariable) a score se salje kao json u body-u (@RequestBody)
     @Override
     public Grade saveGrade(Grade grade, Long studentId, Long courseId) throws GradeNotFoundException {
         // posto je student obavezan podatak prvo s euzima student po id-u a zatim se taj student setuje grade-u
-        Student student = studentRepository.findById(studentId).get(); 
-        Course course = courseRepository.findById(courseId).get();
+        Student student = StudentServiceImpl.unwrapStudent(studentRepository.findById(studentId), studentId);
+        Course course = CourseServiceImlp.unwrapCourse(courseRepository.findById(courseId), courseId);
 
         // pre nego sto se grade snimi moraju da mu se setuju student i course
         grade.setStudent(student);
@@ -57,9 +45,12 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public Grade updateGrade(String score, Long studentId, Long courseId) {
+        Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+        Grade unwrappedGrade = unwrapGrade(grade, studentId, courseId);
         // kada se radi update grade recorda prvo se dohvati grade koji postoji, zatim mu se menja score podatak i zatim se snima u bazu
         // posto ovaj grade vec postoji u bazi, kada se radi save() CrudRepository nece kreirati novi record nego ce uraditi update
-        Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+        /*
+         Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
         if(grade.isPresent()){
             Grade unwrappedGrade = grade.get(); // uzima se grade/value iz optional-a
             unwrappedGrade.setScore(score); // update-uje se score
@@ -67,11 +58,15 @@ public class GradeServiceImpl implements GradeService {
         } else {
             throw new GradeNotFoundException(studentId, courseId);
         }
+        */
+        unwrappedGrade.setScore(score);
+        return gradeRepository.save(unwrappedGrade);
     }
 
     @Override
     public void deleteGrade(Long studentId, Long courseId) {
-        // uzima se grade sa trazenim studentId i courseId a zatim se proverava da li postoji
+        // uzima se grade sa trazenim studentId i courseId a zatim se proverava da li postoji. Ako ne postoji baca se izuzetak
+        // ovo se obavlja u metodi unwrapGrade()
         Optional<Grade> grade = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
         if(grade.isEmpty()) throw new GradeNotFoundException(studentId, courseId);
 

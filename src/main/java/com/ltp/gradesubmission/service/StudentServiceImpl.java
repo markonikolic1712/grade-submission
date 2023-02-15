@@ -27,12 +27,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student getStudent(Long id) {
         Optional<Student> student = studentRepository.findById(id);
-        // proverava se da li postoji value u optional objektu - ako postoji onda se sa get() uzima i vraca a ako ne postoji onda se baca izuzetak
-        if(student.isPresent()) {
-            return student.get();
-        } else {
-            throw new StudentNotFoundException(id);
-        }
+        // proverava se da li postoji value u optional objektu - ako postoji onda se sa get() uzima i vraca a ako ne postoji onda se baca izuzetak. Ovo se obavlja u metodi unwrapStudent()
+        return unwrapStudent(student, id);
     }
 
     @Override
@@ -51,6 +47,11 @@ public class StudentServiceImpl implements StudentService {
         
     }   
 
+    // proverava se da li postoji value u optional objektu - ako postoji onda se sa get() uzima i vraca a ako ne postoji onda se baca izuzetak. Ovo se obavlja u metodi unwrapStudent()
+    static Student unwrapStudent(Optional<Student> entity, Long id) {
+        if (entity.isPresent()) return entity.get();
+        else throw new StudentNotFoundException(id);
+    }
 
     // @Override
     // public Student getStudent(Long id) {

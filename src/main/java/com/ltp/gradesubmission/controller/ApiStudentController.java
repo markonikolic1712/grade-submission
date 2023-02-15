@@ -2,6 +2,8 @@ package com.ltp.gradesubmission.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +40,7 @@ public class ApiStudentController {
     // 4. repository koristi CRUD metode koje je nasledio od CrudRepository-a i student entity snima u bazu uz pomoc ORM-a
     // 5. ORM layer mapira property-e objekta na kolone i kreira sql statement za insert
     @PostMapping
-    public ResponseEntity<Student> saveStudent(@RequestBody Student student) {
+    public ResponseEntity<Student> saveStudent(@Valid @RequestBody Student student) {
         System.out.println("----------- REST API - saveStudent() -----------");
         studentService.saveStudent(student);
         return new ResponseEntity<>(student, HttpStatus.CREATED);
@@ -59,7 +61,7 @@ public class ApiStudentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HttpStatus> updateStudent(@PathVariable("id") Long id, @RequestBody Student student) {
+    public ResponseEntity<HttpStatus> updateStudent(@PathVariable("id") Long id, @Valid @RequestBody Student student) {
         System.out.println("----------- REST API - updateStudent() -----------");
         studentService.updateStudent(id, student);
         return new ResponseEntity<>(HttpStatus.OK);

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,7 +68,7 @@ public class ApiGradeController {
     // PUT - http://localhost:8080/api/grade/student/3/course/2
     // PUT - /grade/student/{studentId}/course/{courseId}
     @PutMapping("/student/{studentId}/course/{courseId}")
-    public ResponseEntity<Grade> updateGrade(@RequestBody Grade grade, @PathVariable("studentId") Long studentId, @PathVariable("courseId") Long courseId) {
+    public ResponseEntity<Grade> updateGrade(@Valid @RequestBody Grade grade, @PathVariable("studentId") Long studentId, @PathVariable("courseId") Long courseId) {
         System.out.println("----------- REST API - saveGrade() -----------");
         
         return new ResponseEntity<>(gradeService.updateGrade(grade.getScore(), studentId, courseId), HttpStatus.OK);

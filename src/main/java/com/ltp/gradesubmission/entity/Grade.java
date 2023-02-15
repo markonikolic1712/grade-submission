@@ -8,16 +8,20 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import com.ltp.gradesubmission.Score;
 import lombok.*;
 
+// na tabelu se dodaje unique constraint da kombinacija podataka student_id i course_id mora da bude jedinstvena 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "grade")
+@Table(name = "grade", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"student_id", "course_id"})
+})
 public class Grade {
     
     @Id

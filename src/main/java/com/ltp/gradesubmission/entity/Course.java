@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,18 +30,22 @@ public class Course {
     private Long id;
 
     @NonNull
+    @NotBlank(message = "Name cannot be blank")
     @Column(name = "subject", nullable = false)
     private String subject;
 
     @NonNull
-    @Column(name = "code", nullable = false)
+    @NotBlank(message = "Course code cannot be blank")
+    @Column(name = "code", nullable = false, unique = true)
     private String code;
 
     @NonNull
+    @NotBlank(message = "Description cannot be blank")
     @Column(name = "description", nullable = false)
     private String description;
 
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Grade> grades;
+    
 }
