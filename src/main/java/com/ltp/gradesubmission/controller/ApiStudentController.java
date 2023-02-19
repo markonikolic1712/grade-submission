@@ -1,6 +1,7 @@
 package com.ltp.gradesubmission.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ltp.gradesubmission.entity.Course;
 import com.ltp.gradesubmission.entity.Student;
 import com.ltp.gradesubmission.service.StudentService;
 import com.ltp.gradesubmission.service.StudentServiceImpl;
@@ -65,5 +67,13 @@ public class ApiStudentController {
         System.out.println("----------- REST API - updateStudent() -----------");
         studentService.updateStudent(id, student);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    
+    // metoda koja vraca kurseve na koje je upisan jedan student
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<Set<Course>> getCoursesByStudentId(@PathVariable("id") Long id) {
+        System.out.println("----------- REST API - getCoursesByStudentId() -----------");
+        return new ResponseEntity<>(studentService.getEnrolledCourses(id), HttpStatus.OK);
     }
 }

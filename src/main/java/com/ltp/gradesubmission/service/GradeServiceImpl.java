@@ -8,6 +8,7 @@ import com.ltp.gradesubmission.entity.Course;
 import com.ltp.gradesubmission.entity.Grade;
 import com.ltp.gradesubmission.entity.Student;
 import com.ltp.gradesubmission.exception.GradeNotFoundException;
+import com.ltp.gradesubmission.exception.StudentNotEnrolledException;
 import com.ltp.gradesubmission.repository.CourseRepository;
 import com.ltp.gradesubmission.repository.GradeRepository;
 import com.ltp.gradesubmission.repository.StudentRepository;
@@ -35,6 +36,10 @@ public class GradeServiceImpl implements GradeService {
         // posto je student obavezan podatak prvo s euzima student po id-u a zatim se taj student setuje grade-u
         Student student = StudentServiceImpl.unwrapStudent(studentRepository.findById(studentId), studentId);
         Course course = CourseServiceImlp.unwrapCourse(courseRepository.findById(courseId), courseId);
+
+        // pre nego sto se snimi grade proverava se da li je student upisan na kurs. Ako nije upisan na neki kurs onda ne moze da dobije ocenu iz tog kursa
+        // proverava se da li courseId postoji u listi kurseva u entity-u student
+        if(!student.getCourses().contains(course)) throw new StudentNotEnrolledException(studentId, courseId);
 
         // pre nego sto se grade snimi moraju da mu se setuju student i course
         grade.setStudent(student);

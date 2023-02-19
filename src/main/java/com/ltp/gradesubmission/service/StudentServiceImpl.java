@@ -1,14 +1,18 @@
 package com.ltp.gradesubmission.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ltp.gradesubmission.entity.Course;
 import com.ltp.gradesubmission.entity.Student;
 import com.ltp.gradesubmission.exception.StudentNotFoundException;
+import com.ltp.gradesubmission.repository.CourseRepository;
 import com.ltp.gradesubmission.repository.StudentRepository;
 
 import lombok.*;
@@ -18,6 +22,7 @@ import lombok.*;
 public class StudentServiceImpl implements StudentService {
 
     StudentRepository studentRepository;
+    CourseRepository courseRepository;
 
     @Override
     public Student saveStudent(Student student) {
@@ -46,6 +51,22 @@ public class StudentServiceImpl implements StudentService {
         // TODO Auto-generated method stub
         
     }   
+
+    @Override
+    public Set<Course> getEnrolledCourses(Long studentId) {
+        Optional<Student> student = studentRepository.findById(studentId);
+        if(student.isEmpty()) throw new StudentNotFoundException(studentId);
+        
+        // 
+        // Set<Course> newCourseSet = new HashSet<>();
+        // for(Course course : (Set<Course>) student.get().getCourses()) {
+        //     Course c = new Course(course.getSubject(), course.getCode(), course.getDescription());
+        //     newCourseSet.add(c);
+        // }
+        // return newCourseSet;
+
+        return student.get().getCourses();
+    }
 
     // proverava se da li postoji value u optional objektu - ako postoji onda se sa get() uzima i vraca a ako ne postoji onda se baca izuzetak. Ovo se obavlja u metodi unwrapStudent()
     static Student unwrapStudent(Optional<Student> entity, Long id) {

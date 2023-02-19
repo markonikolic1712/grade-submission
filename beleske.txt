@@ -1384,11 +1384,48 @@ Ovo dole je u Student entitetu    // jedan objekat student moze biti vezan (imat
 Kada se odredjuje gde treba da ide foreign key treba da se gleda koja tabela nema smisla bez tog kljuca.
 Ako se gleda veza izmedju tabela courses i grades tabela grades nema smisla bez course_id podatka pa je course_id FK tj. referenca ka PK u course tabeli.
 
-U grades treba da vude property grades i on treba da bude @ManyToOne tj. vise redova u grade tabeli moze da bude vezano za jedan red u courses tabeli.
+U grades treba da bude property grades i on treba da bude @ManyToOne tj. vise redova u grade tabeli moze da bude vezano za jedan red u courses tabeli.
+
+Kada je u pitanju veza izmedju student i grade owner relacije je grade tabela jer je u njoj FK student_id. Kada ej OneToMany veza owner je tabela u kojoj je FK. Zato se u grade entitetu dodaju property students i na njemu anotacija @JoinColumn. U student entitetu je @OneToMany(mappedBy = "student") sto znaci de je veza mapirana po property-u "student" u grade entitetu.
+
+Ko je owner relacije odlucuje se na osnovu toga koja tabela ne moze da postoji bez one druge i to se odlucuje na osnovu toga u kojoj tabeli je foreign key.
+U tabeli grade je FK student_id i tabela grade ne moze da postoji bez podatka student_id a student tabela moze da postoji bez grade tabele. 
+U relaciji grade-course grade tabela je owner jer grade red ne moze da postoji bez FK podatka course_id pa je grade tabela owner relacije. Entity grade ima property course a u entity Course se stavlja @OneToMany(mappedBy = "course") cime se kaze da relacija mapira po property-u course u owner-u.
+
+Veza izmedju coourse i student je ManyToMany i kreira se join tabela. U student entity-u je @ManyToMany(mappedBy = "students") sto znaci da se relacija mapira po property-u students koji je @JoinTable Set<Student> students koji je u course entitetu.
+Ako se ne stavi mappedBy = "" spring_boot ce sam kreirati join tabelu.
+
+
+Kada se dodaju relacije @OneToMany, @ManyToOne, @ManyToMany i sl. gleda se odnos izmedju dve tabele a ne izmedju reda u jednoj tabeli i reda u drugoj tabeli.
+
+Npr. Ako se gleda veza izmedju student i course tabela za obe se stavlja ManyToMany tj. vise studenata iz student tabele moze da bude vezano za vise kurseva u course tabeli i obrnuto. Ovo je bidirectional veza.
+
+Oba entiteta (i student i course) imaju property-e koji su liste onog drugog
+	- entity student ima Set coursesInStudentEntity:
+	@JsonIgnore
+    @ManyToMany(mappedBy = "studentsInCourseEntity") 	// ovime se kaze da je ova kolekcija mapirana po kolekciji studentsInCourseEntity u Course entity-u
+    private Set<Course> coursesInStudentEntity;
+	
+	- entity course ima Set studentsInCourseEntity koji se kreira kao @JoinTable
+    // @JsonIgnore // ako se stavi anotacija @JsonIgnore kada se vraca course JSON objekat u njemu nece biti liste students
+    @ManyToMany
+    @JoinTable(
+        name = "course_student",
+        joinColumns = @JoinColumn(name = "course_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName = "id")
+    )
+    private Set<Student> studentsInCourseEntity;
+
+Stavlja se Set kolekcija jer 
+
+@JoinTable se kreira na strani oinog ko je owner veze.
+
+Kada je u pitanju veza izmedju student i grade owner relacije je grade tabela jer je u njoj FK student_id. Kada ej OneToMany veza owner je tabela u kojoj je FK. Zato se u grade entitetu dodaju property students i na njemu anotacija @JoinColumn. U student entitetu je @OneToMany(mappedBy = "student") sto znaci de je veza mapirana po property-u "student" u grade entitetu.
 
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------
@@ -1425,6 +1462,50 @@ Kada iz repositorijuma iz neke metode, vracamo Optional<Student>, to je upozoren
 
 
 
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------ Spring Security: Basic and JWT Authentication (featuring MySQL) -------------------------------
+
+Bazicna autentifikacija je da korisnik u requestu salje username i password i to se salje u header-u.
+---------------------------------------------------------------
+Header:
+Content-Type: application/json
+charset: utf-8
+Authorization: Basic username:password       <===========
+---------------------------------------------------------------
+Body: 
+{
+	"id": "4567-7895-1235-4587"
+	"name": "Ime Prezime"
+	"phoneNumber": "123456789"
+}
+---------------------------------------------------------------
+
+Bazicna autentifikacija nije dobra praksa i umesto ovoga ce se koristiti JWT token
+---------------------------------------------------------------
+Header:
+Content-Type: application/json
+charset: utf-8
+Authorization: Bearer JWT Token       <===========
+---------------------------------------------------------------
+
+Autentifikacija - verifikacija autenticnosti klijenta.
+Autorizacija - oderedjivanje cemu korisnik moze da pristupa.
+
+Proces Basic autentifikacije kada klijent salje request API-u:
+1. API zahteva autentifikaciju pre procesiranja requesta
+2. HTTP request koji salje klijent mora da sadrzi kredencijala u header-u - polje Authorization (Authorization: Basic username:password). Username i password ispred sebe imaju 'Basic'. Username i password se enkoduju sa base64 i kasnije se taj podatak dekodira na strani servera.
+3. Sada se radi autentifikacija i to tako sto spring security validira identitet klijenta. Spring security uzima podatke koje je poslao klijent i uporedjuje ih sa podacima u bazi. Ako nema tog korisnika onda vraca 401 - UNAUTHORIZED.
+4. Ako spring security uspesno validira korisnika (uspesna autentifikacija) onda prelazi na autorizaciju - odredjivanje cemu korisnik moze da pristupi. Npr. ako klijent ima rolu 'user' onda ne moze da pristupi API-u kojim se kreira resurs u tabeli student i salje response sa 403 - FORBIDDEN. Ako je klijent sa rolom admin onda hendluje request, kreira studenta i vraca 201 CREATED.
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
 
 
 

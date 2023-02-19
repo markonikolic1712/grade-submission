@@ -1,6 +1,7 @@
 package com.ltp.gradesubmission.controller;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import javax.validation.Valid;
@@ -62,11 +63,15 @@ public class ApiCourseController {
 
     @PutMapping("/{courseId}/student/{studentId}")
     public ResponseEntity<Course> enrollStudentToCourse(@PathVariable Long courseId, @PathVariable Long studentId) {
+        System.out.println("----------- REST API - enrollStudentToCourse() -----------");
         return new ResponseEntity<>(courseService.addStudentToCourse(studentId, courseId), HttpStatus.OK);
     }
 
-    // @GetMapping("/{id}/students")
-    // public ResponseEntity<Set<Student>> getEnrolledStudents(@PathVariable Long id) {
-    //     return new ResponseEntity<>(courseService.getEnrolledStudents(id), HttpStatus.OK);
-    // }
+    // metoda koja vraca stuidente koji su upisani na kurs
+    @GetMapping("/{id}/students")
+    public ResponseEntity<Set<Student>> getEnrolledStudents(@PathVariable Long id) {
+        System.out.println("----------- REST API - getEnrolledStudents() -----------");
+        return new ResponseEntity<>(courseService.getEnrolledStudents(id), HttpStatus.OK);
+    }
+
 }

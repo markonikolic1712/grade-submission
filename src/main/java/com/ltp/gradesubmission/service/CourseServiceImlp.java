@@ -59,19 +59,17 @@ public class CourseServiceImlp implements CourseService {
 
     @Override
     public Course addStudentToCourse(Long studentId, Long courseId) {
-        // Course course = getCourse(courseId);
-        // Optional<Student> student = studentRepository.findById(studentId);
-        // Student unwrappedStudent = StudentServiceImpl.unwrapStudent(student, studentId);
-        // course.getStudents().add(unwrappedStudent);
-        // return courseRepository.save(course);
-        return null;
+        Course course = getCourse(courseId);
+        Optional<Student> student = studentRepository.findById(studentId);
+        Student unwrappedStudent = StudentServiceImpl.unwrapStudent(student, studentId);
+        course.getStudents().add(unwrappedStudent); // uzima se property students iz course entiteta i u kolekciju se dodaje novi student
+        return courseRepository.save(course);
     }
 
     @Override
     public Set<Student> getEnrolledStudents(Long id) {
-        // Course course = getCourse(id);
-        // return course.getStudents();
-        return null;
+        Course course = getCourse(id);
+        return course.getStudents();
     }
 
     /*

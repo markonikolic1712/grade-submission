@@ -2,6 +2,7 @@ package com.ltp.gradesubmission.entity;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,10 +10,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+
+import org.hibernate.annotations.ManyToAny;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -49,4 +53,9 @@ public class Student {
     @JsonIgnore
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL) 
     private List<Grade> grades;
+
+    // vise studenata je vezano za vise kurseva
+    @JsonIgnore
+    @ManyToMany(mappedBy = "students", cascade = CascadeType.ALL)
+    private Set<Course> courses;
 }

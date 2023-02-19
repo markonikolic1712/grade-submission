@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
@@ -18,26 +20,36 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.ltp.gradesubmission.exception.CourseNotFoundException;
 import com.ltp.gradesubmission.exception.ErrorResponse;
 import com.ltp.gradesubmission.exception.GradeNotFoundException;
+import com.ltp.gradesubmission.exception.StudentNotEnrolledException;
 import com.ltp.gradesubmission.exception.StudentNotFoundException;
 
 @ControllerAdvice
 public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler
-    public ResponseEntity<Object> handleGradeNotFoundException(GradeNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
+    // @ExceptionHandler
+    // public ResponseEntity<Object> handleGradeNotFoundException(GradeNotFoundException ex){
+    //     ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));
+    //     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    // }
 
-    @ExceptionHandler
-    public ResponseEntity<Object> handleStudentNotFoundException(StudentNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
+    // @ExceptionHandler
+    // public ResponseEntity<Object> handleStudentNotFoundException(StudentNotFoundException ex){
+    //     ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));
+    //     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    // }
 
-    @ExceptionHandler
-    public ResponseEntity<Object> handleCourseNotFoundException(CourseNotFoundException ex){
-        ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));
+    // @ExceptionHandler
+    // public ResponseEntity<Object> handleCourseNotFoundException(CourseNotFoundException ex){
+    //     ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));
+    //     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    // }
+
+    // EntityNotFoundException.class menja ova tri exceptiona gore
+
+
+    @ExceptionHandler({EntityNotFoundException.class, GradeNotFoundException.class, StudentNotEnrolledException.class})
+    public ResponseEntity<Object> handleResourceNotFoundException(RuntimeException ex) {
+        ErrorResponse error = new ErrorResponse(Arrays.asList(ex.getMessage()));  
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
