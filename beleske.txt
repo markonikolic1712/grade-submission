@@ -1467,6 +1467,7 @@ Kada iz repositorijuma iz neke metode, vracamo Optional<Student>, to je upozoren
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------ Spring Security: Basic and JWT Authentication (featuring MySQL) -------------------------------
 
+---------------------------- Basic Authentication - pocetak ----------------------------
 Bazicna autentifikacija je da korisnik u requestu salje username i password i to se salje u header-u.
 ---------------------------------------------------------------
 Header:
@@ -1499,8 +1500,187 @@ Proces Basic autentifikacije kada klijent salje request API-u:
 3. Sada se radi autentifikacija i to tako sto spring security validira identitet klijenta. Spring security uzima podatke koje je poslao klijent i uporedjuje ih sa podacima u bazi. Ako nema tog korisnika onda vraca 401 - UNAUTHORIZED.
 4. Ako spring security uspesno validira korisnika (uspesna autentifikacija) onda prelazi na autorizaciju - odredjivanje cemu korisnik moze da pristupi. Npr. ako klijent ima rolu 'user' onda ne moze da pristupi API-u kojim se kreira resurs u tabeli student i salje response sa 403 - FORBIDDEN. Ako je klijent sa rolom admin onda hendluje request, kreira studenta i vraca 201 CREATED.
 
+Lekcija 206. u tutorijalu - dodavanje autentifikacije i autorizacije u projektu 'contacts-auth-basic'
+Security filter chain:
+1. Delete (url api je /contact/{id}) zahteva autentifikaciju - korisnik mora da bude validiran
+2. Samo admin role moze da posalje request na /contact/{id} - korisnik mora da bude autorizovan kao admin
+3. Post request na /contact - zahteva autentifikaciju - korisnik mora da bude validiran
+4. Autorizacija za Post request na /contact - korisnik koji je autorizovan sa rolama admin ili user moze da posalje post request na /contact
+5. Get operacijama moze da pristupi bilo ko - da bi korisnik poslao get request ne mora da bude autentifikovan
+
+U pom.xml se dodaje dependency:
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+Kada se doda spring-boot-starter-security dependency aplikacija blokira sve requestove i salje korisnika na login stranu u browseru. Posto radimo na API-u cim budemo override-ovali default konfiguraciju i SecurityFilterChain, korisnik se nece preusmeravati na login stranu.
+
+SecurityFilterChain je bean koji definise niz security pravila (filtera).
+Filter chain je: 1. AuthenticationFilter, 2.AuthorizationFilter, 3. OncePerRequestFilter. 
+
+U projektu kreiramo novi folder (security) i u njemu fajl SecurityConfig.java - /java/com/ltp/contacts/security/SecurityConfig.java
+U securityConfig.java se definise SecurityFilterChain bean - definise se niz porovera (autentifikacija i autorizacija) kroz koje s eprolazi kada se posalje request.
+U securityConfig.java se definise UserDetailsService bean - ovaj bean sadrzi detalje o useru i adminu.
+BCrypt je hashing algoritam koji sluzi za enkodiranje lozinke i kada se ona jedno enkodira ne moze da se vrati u prvpbitno stanje/dekodira. Takav dekodiran password (string) se cuva u bazi a kada korisnik pokusava da se uloguje i ukuca password on se enkriptuje i uporedjuje se sa stringom u bazi.
+
+Bean SecurityFilterChain presrece request pre nego sto dodje do kontrolera. Taj request prolazi kroz FilterChain i tek posle toga se request propusta do kontrolera (ili se ne propusta).
+
+@Configuration
+@AllArgsConstructor
+public class SecurityConfig {
+
+    // ovo je autowired bean-a BCryptPasswordEncoder koji smo definisali u main klasi
+    private BCryptPasswordEncoder passwordEncoder;
+    
+@Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // prolazi se kroz filter chain i proveravaju se autentifikacija i autorizacija
+        http
+        .csrf().disable() // iskljucuje se csrf zastita jer je CSRF napad na browser-e
+        .authorizeRequests()  // da li je autorizacija potrebna
+        .antMatchers(HttpMethod.DELETE, "/delete/*/contact").hasRole("ADMIN") // delete request na '/delete/*/contact' se prihvata samo od onoga ko je ulogovan sa rolom 'admin'
+        .antMatchers(HttpMethod.POST).hasAnyRole("ADMIN", "USER") // bilo ko sa rolama i USER i ADMIN mogu da posalje POST request i on ce biti prihvacen
+        .antMatchers(HttpMethod.GET).permitAll() // svako moze da posalje GET request (moze i bez kredencijala) a za ostale tipove (POST, PUT, DELETE) mora da bude autentifikovan. Ovo za post, put i delete je definisano u sledecem redu 
+        .anyRequest().authenticated() // svaki request mora da bude autentifikovan
+        .and()
+        .httpBasic()   // requestovi ce biti autentifikovani koriscenjem Basic autentifikacije
+        .and()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        return http.build();  // sa build() ce se kreirati objekat koji ce biti bean
+    }
+
+    @Bean
+    public UserDetailsService users() {
+        // User - import org.springframework.security.core.userdetails.User;
+        UserDetails admin = User.builder()                  // kreira se User
+            .username("admin")                     // koji ima username admin  
+            .password(passwordEncoder.encode("admin-pass")) // koji ima password: admin-pass
+            .roles("ADMIN")         // koji ima rolu admin - ko se uloguje sa ovim gore krecencijalima imace rolu ADMIN
+            .build();
+
+        UserDetails user = User.builder()
+            .username("user")
+            .password(passwordEncoder.encode("user-pass"))
+            .roles("USER")
+            .build();
+
+        // detalji o user-u i admin-u se cuvaju u memoriji
+        return new InMemoryUserDetailsManager(admin, user);
+    }
+}
+
+Kada se posle dodavanja ove klase pokrene aplikacija i iz postmana posalje request na localhost:8080/contacts vraca se 401 Unauthorized.
+Da bi request prosao u header treba dodati 'Authorization: Basic .........'
+Ide se u 'Auth' odabere se tip 'Basic Auth', unese se admin: admin i password: admin-pass. Ide se na Header i tu se vidi da je za 'Authorization' upisano 'Basic YWRtaW46YWRtaW4tcGFzcw==' sto je Base64 enkodiran string od admin-pass. Ovaj request ce proci i api ce vratiti listu kontakata.
+Ako se u 'Auth' tabu iskljuci 'Basic Auth' i posalje request on ce opet proci jer su krecencijali ostali u cookie-u - ovo je zato sto je spring kreirao session based authentification. Zato se u SecurityFilterChain dodaje sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) i ovime se u spring secutity-u sprecava kreiranje sesije - spring security nece kreirati HttpSession.
+---------------------------- Basic Authentication - kraj ----------------------------
 
 
+
+---------------------------- JWT Authentication - pocetak ----------------------------
+Implementacija JWT autentifikacije se obavlja u 3 koraka:
+1. patway 1 - singing up. Korisnik salje post request na '/register' sa sadrzajem u body-u {"username":"Pera", "password":"lozinka"}
+	Svaki request prolazi kroz Security Filter Chain i u njemu je permit("/register") sto znaci da svaki post request koji dolazi na uvaj url treba da se propusti bez autentifikacije i autorizacije.
+	Uzimaju se podaci iz requesta, password se enkriptuje i podaci se snimaju u bazu.
+2. pathway 2 - logging in. Sada korisnik treba da uradi autentifikacija. Salje se post request na /authenticate. Salkje se isti sadrzaj kao u prethodnom koraku.
+	Uzimaju se podaci iz username i password i uporedjuju se sa podacima u bazi. Password je u bazi enkriptovan pa i ovaj koji je prosledjen na /register treba da se enkriptuje i uporedi sa onim u bazi. Ako se podaci ne slazu vraca ce 401 - Invalid Credencials.
+	Ako su username i password dobri onda se kao response salje 200:OK i 'Authorization: Bearer JWT'. U responsu se salje i JSON Web Token (JWT).
+	JWT se sastoji (sadrzi) iz: Header, Payload i Signature.
+	Header opisuje kakav je JWT poslat. Header: {"alg":"HS256", "typ":"JWT"} - algoritam koji je koriscen za digitalni potpis JWT-a. Sam header je enkodiran sa Base64 i ispisan je kao niz karaktera.
+	Payload 
+	{
+		"sub":"Pera",
+		"username":"lozinka",
+		"exp":33423432
+	}
+	Header i payload se salju kao dva stringa spojena tackom - header.payload, tj. - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiUGVyYSIsInN1YiI6Imxvemlua2EiLCJpYXQiOjMzNDIzNDMyfQ
+
+	Algoritam HS256 se koristi da kreira digitalni potpis. Uzima se header, payload i tajni kljuc i od svega toga se kreira digitalni potpis. Tajni kljuc zna samo API. 
+	Na kraju se dobija eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiUGVyYSIsInN1YiI6Imxvemlua2EiLCJpYXQiOjMzNDIzNDMyfQ.RQPaBZKvNQqhUwVWzi5yWBQ2dINj71sdeh3xxVudzxc
+	Treci deo, koji je iza druge tacke, je digitalni potpis. Ovakav JWT(header.payload.potpis) signed JSON Web Token. Ovaj JWT se salje nazad korisniku koji na /auuthenticate posalje dobar username i password.
+3. patway 3 - Authorizing Request - korisniku koji se na /authenticate loguje sa dobrim username i password salje se potpisan JWT.
+
+Sada klijent/korisnik ima JWT i zeli da pristupi url-ovima /student/{id}, /grade, /course/{id} i sl. Uz request klijent salje i JWT koji je dobio od API-a. API prihvata JWT (header.payload.signature) od klijenta uzima header i payload i na njih dodaje tajni kljuc koji samo on zna (samo API) i kreira potpisani JWT. Taj JWT koji je kreirao prilikom provere uporedjuje sa onim koji je dobio od klijenta i ako su isti onda klijent moze da pristupo resursima. 
+Samo API zna tajni kljuc. Klijent ne zna tajni kljuc - klijent samo salje JWT koji je dobio od API-a a ako proba da ga promeni nece biti isti kao onaj koji se kreira prilikom provere.
+Ako JWT koji je klijent poslao, nije prosao kontrolu, klijentu se vraca response 403-FORBIDDEN.
+Ako je provera JWT-a prosla spring autentifikaciju smesta u SecurityContextHolder. Kada se to uradi time se indikuje da je korisnik uspesno autentifikovan. Ovo je kraj pathway-a 3.
+	
+Bean SecurityFilterChain presrece request pre nego sto dodje do kontrolera. Taj request prolazi kroz FilterChain i tek posle toga se request propusta do kontrolera (ili se ne propusta).
+	
+Pathway 1 - implementacija
+Kreiranje (registracija) user-a. Upis username i password u bazu.
+Za url /register se dozvoljava svima da mogu da posalju request i to zato da bi mogli da se registruju kao korisnici. U SecurityFilterChain se kreira security rule i dodaje se: .antMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll() // svaki post request na /user/register je dozvoljen
+SecurityConstants.REGISTER_PATH je konstanta koju smo kreirali - /user/register.
+Request prolazi filter i prosledjuje se UserController-u i koristi se metoda iz kontrolera da se user snimi u bazu. Sa ResponseEntity se korisniku vraca samo kod HttpStatus.CREATED a ne i user koji je kreiran. Taj user sadrzi hash-ovan password i opasno je to slati nazad.
+
+Pathway 2 - implementacija
+U klasi AuthenticationFilter imamo metodu attemptAuthentication() kojoj se prosledjuju podaci (username i password) koje je poslao korisnik. Ova metoda od toga kreira Authentication objekat. Authentication objekat se salje klasi AuthenticationManager u metodu authenticate() - objekat koji se salje sadrzi kredencijale koje je uneo korisnik. 
+U authenticate() metodi se uzima prosledjeni password, on se hash-uje i taj hash i username se uporedjuje sa podacima iz baze. Ako se podaci poklapaju vraca Authentication objekat sto znaci da je autentifikacija uspesna.
+Nakon ovoga ce metoda successfulAuthentification() metoda u filteru biti pozvana i ona klijentu salje JWT token.
+// kada korisnik posalje request na url /login poziva se ova metoda - attemptAuthentication()
+
+Kreiramo klasu ExceptionHandlerFilter koja ce biti prvi filter koji ce biti pozvan i u ovoj klasi se radu unwrapp requesta klijenta za logovanje. U ovoj klasi je try-catch blok i u njemu se radu unwrapp pa ako je klijent prosledio objekat sa losim imenima property-a (nije username ili password) onda se iz catch-a salje response klijentu. Ako je request dobar onda se prosledjuje u sledeci filter.
+Kada se kreira Authentication objekat on treba da se prosledi AuthenticationManager-u. 
+
+Radi se u AuthenticationFilter u metodama successfulAuthentication() i unsuccessfulAuthentication(). 
+Iz klase CustomAuthenticationManager se vraca authenticate objekat i ako je autentifikacija uspesna poziva se successfulAuthentication() a ako nije poziva se unsuccessfulAuthentication().
+U successfulAuthentication() kreiramo JWT i saljemo ga korisniku koji ga kasnije koristi da se predstavi sa njim i to znaci da je autentifikovani korisnik. Kada se kreira JWT ima header i payload. U payload je polje subject koje sadrzi username - "sub":"Pera". Payload sadrzi i vreme isteka JWT-a ("exp":"33442154") koje je 2 sata od trenutnog vremena.
+Header je {"alg":"HS512", "typ":"JWT"} a treci deo JWT-a je Signature{kjUi876Hjjz}
+U successfulAuthentication() JWT se kreira kao header.payload.signature i salje se korisniku.
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+            Authentication authResult) throws IOException, ServletException {
+        // kreiranje JWT-a
+        // posto se u payload JWT-a ukljucuje trenutno vreme on ce svaki put biti drugaciji. Kada god korisnik posalje kredencijale za logovanje vratice mu se drugaciji JWT zbog razlicitog vremena
+        String token = JWT.create()
+        .withSubject(authResult.getName()) // iz authentication objekta se uzima username
+        .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION)) // uzima se trenutno vreme i na njega se dodaje 2 sata
+        .sign(Algorithm.HMAC512(SecurityConstants.SECRET_KEY)); // potpisivanje JWT-a
+
+        // kreira se response koji ce u headeru imati "Authorization" : "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJQZXJhIiwiZXhwIjoxNjc3MzQxNDI4fQ.cSchrWE22Y5nfdbE2YhKfQFFIZeaxMDl_XldxvFuOJiPfq6ppSvdjJj7XU0AZ8Uf7jMIIkUDQMISXOSvkVaeZg"
+        response.addHeader(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + token);
+    }
+	
+Kada korisnik dobije JWT on ga salje u header-u svaki put kada pristupa api resursima.
+
+@Configuration
+@AllArgsConstructor
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // prvo se kreira authenticationFilter a zatim se menja url za koji se koristi ovaj filter. Ako se ne promeni url onda je po defaultu /login
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter();
+        authenticationFilter.setFilterProcessesUrl("/api/authenticate");
+
+        http        
+            .headers().frameOptions().disable() // New Line: the h2 console runs on a "frame". By default, Spring Security prevents rendering within an iframe. This line disables its prevention. - ovo je samo da bi mogli da vidimo H2 bazu
+            .and()
+            .csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/h2/**").permitAll() // New Line: allows us to access the h2 console without the need to authenticate. ' ** '  instead of ' * ' because multiple path levels will follow /h2.
+            .antMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll() // svaki post request na /user/register je dozvoljen
+            .anyRequest().authenticated() // svaki drugi request (nije /h2 ili /user/register) zahteva autorizaciju
+            .and()
+            .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class) // primeni filter ExceptionHandlerFilter() pre filtera AuthenticationFilter koji je u sledecem redu
+            .addFilter(authenticationFilter) // dodaje se nas filter koji proverava username i password 
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        return http.build();
+    }
+}
+
+
+Pathway 3 - implementacija
+U ovom delu se obavlja autorizacija requesta koji zele da pristupe web servisima tj. requestima koji gadjaju url-ove u kontrolerima. 
+Kada klijent salje request web servisu pretpostavlja se da je vec autentifikovan i da mu je poslat JWT. Kada salje request klijent salje i JWT kao dokaz da je autentifikovan.
+Kada klijent posalje request bez obzira na bilo sta request uvek pocinje od ExceptionHandlingFilter-a.
+Iz ExceptionHandlingFilter request ide u AuthenticationFilter a iz njega ide u JWTAuthorizationFilter.
+U JWTAuthorizationFilter se obavlja provera JWT-a i samo ako je validan request se propusta ka kontrolerima. 
+Uzima se token koji je klijent poslao i iz njega se uzima header i payload. Na to se dodaje tajni kljuc (koji zna samo api) i od tako dobijenog tokena se kreira digitalni potpis. Ako je taj digitalni potpis isti kao potpis tokena koji je poslao klijent znamo da je JWT validan.
+Nakon ovoga se kreira authentication objekat u SecurityContextHolder-u. SecurityContextHolder cuva podatke ko je autentifikovan i podaci koje cuva su Principal, Credentials i Authorities.
 
 
 ------------------------------------------------------------------------------------------------------------------------------
