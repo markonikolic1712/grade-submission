@@ -12,7 +12,7 @@ public interface CourseService {
     Course saveCourse(Course course) throws CourseNotFoundException;
     void deleteCourse(Long id) throws CourseNotFoundException;
     List<Course> getCourses() throws CourseNotFoundException;
-    void updateCourse(int index, Course newCourse) throws CourseNotFoundException;
+    void updateCourse(Long id, Course newCourse) throws CourseNotFoundException;
 
     Course addStudentToCourse(Long studentId, Long courseId);
     Set<Student> getEnrolledStudents(Long id);

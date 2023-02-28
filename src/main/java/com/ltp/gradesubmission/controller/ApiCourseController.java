@@ -74,4 +74,11 @@ public class ApiCourseController {
         return new ResponseEntity<>(courseService.getEnrolledStudents(id), HttpStatus.OK);
     }
 
+    // PUT - http://localhost:8080/api/course/1    
+    // u body-u se salje json objekat sa novim podacima
+    @PutMapping("/{id}")
+    public ResponseEntity<HttpStatus> updateCourse(@PathVariable("id") Long id, @RequestBody Course newCourse){
+        courseService.updateCourse(id, newCourse);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -47,10 +47,20 @@ public class CourseServiceImlp implements CourseService {
        return (List<Course>) courseRepository.findAll();
     }
 
+    // PUT - http://localhost:8080/api/course/1    
+    // u body-u se salje json objekat sa novim podacima
     @Override
-    public void updateCourse(int index, Course newCourse) throws CourseNotFoundException {
-        // TODO Auto-generated method stub
-        
+    public void updateCourse(Long id, Course newCourse) {
+        // 1. uzima se kurs po id-u
+        // 2. radi se update property-a
+        // 3. course koji je uzet po id-u se snima u bazu. Posto je to isti objekat on ce biti snimljen preko starog
+        Course course = unwrapCourse(courseRepository.findById(id), id);
+        course.setCode(newCourse.getCode());
+        course.setDescription(newCourse.getDescription());
+        course.setSubject(newCourse.getSubject());
+        course.setGrades(newCourse.getGrades());
+        course.setStudents(newCourse.getStudents());
+        courseRepository.save(course);
     }
 
     static Course unwrapCourse(Optional<Course> entity, Long id) {
