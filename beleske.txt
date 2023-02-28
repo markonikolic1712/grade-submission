@@ -76,7 +76,7 @@ Aplikaciju treba pokretati sa "mvn clean spring-boot:run' jer ova komande prvo o
 ------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------- Client-Server Model -------------------------------------------------------
 
--- Klijent salje request HTTP serveru. HTTP server je softver koji prima request, obradjuje ga i salje respons klijentu. Spring boot ima ugradjen HTTP server. HTTP server radi na fizickom serveru/kompjuteru. Fizicki server ima 65000 portova a HTTP server osluskuje i ocekuje request na jednom od tih 65000 portova.
+-- Klijent salje request HTTP serveru. HTTP server je softver koji prima request, obradjuje ga i salje response klijentu. Spring boot ima ugradjen HTTP server. HTTP server radi na fizickom serveru/kompjuteru. Fizicki server ima 65000 portova a HTTP server osluskuje i ocekuje request na jednom od tih 65000 portova.
 -- Klijentov request mora da ima u sebi ip adresu servera na kome salje request. Klijentov request mora da sadrzi i port na koji fizicki server treba da prosledi request a to je port na kojem HTTP server ocekuje request.
 -- Npr. klijent salje request na 123.4.5.6:8080 gde je 123.4.5.6 IP adresa fizickog servera a on ce request proslediti na port 8080.
 ------------------------------------------------------------------------------------------------------------------------------
@@ -1182,7 +1182,7 @@ Refaktorizacija pre implementacije SQL-JPA
 -------------------------------------------- SQL Database - Spring Boot JPA --------------------------------------------------
 
 grade-submission API je web servis koji sluzi klijentu da dodje do resursa koji su u sql bazi.
-JPA omogucava spring boot aplikasciji da komunicira sa relacionim bazama.
+JPA omogucava spring boot aplikaciji da komunicira sa relacionim bazama.
 JPA znaci: 'Java Persistence API'
 
 ---------------- H2 ----------------
@@ -1207,7 +1207,7 @@ CommandLineRunner se koristi da se H2 baza popuni sa podacima pri startu aplikac
 Posto se H2 baza prazni svaki put kada se aplikacija restartuje na entry-point klasu (GradeSubmissionApplication) se dodaje da implementira interfejs CommandLineRunner.
 Iz ovog interfejsa mora da se primeni meroda run() u koju se dodaje kod koji ce se izvrsiti pri svakom pokretanju aplikacije. Prolazi se kroz listu students i koristi se StudentRepository da se studenti dodaju u bazu.
 
-// kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao paremetri 
+// kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao parametri 
 @AllArgsConstructor
 @SpringBootApplication
 public class GradeSubmissionApplication  implements CommandLineRunner {
@@ -1239,7 +1239,7 @@ Spring JPA nam obezbedjuje ORM (Object Relation Maper) layer koji se koristi za 
 Spring Data JPA po defaultu koristi Hibernate implementaciju.
 
 Java klase/objekti koji se anotiraju sa @Entity su objekti kojima JPA moze da barata. JPA ce od jednog objekta kreirati tabelu.
-Kada JPA-u kazemo da @Entity student treba da se snimi u bazu taj request s esalje ORM-u koji interno kreira tabelu student.
+Kada JPA-u kazemo da @Entity student treba da se snimi u bazu taj request se salje ORM-u koji interno kreira tabelu student.
 
 JPA specifikacija zahteva da svaja klasa koja ima anotaciju @Entity mora da ima prazan konstruktor. 
 
@@ -1282,7 +1282,7 @@ Proces snimanja java objekta student u bazu:
 2. Svaki field u @Entity se mapira na kolonu u tabeli.
 3. primarni kljuc jedinstveno identifikuje svaki rekord u tabeli - svaki entity mora de ima primarni kljuc
 4. Spring JPA nam obezbedjuje CrudREpository iz kojeg koristimo CRUD metode za rad sa bazom
-5. Salje se POST request u kome je kao payload nosu student objekat u json formatu. Ovaj objekat nema id, njega ce kreirati baze.
+5. Salje se POST request u kome je kao payload nosi student objekat u json formatu. Ovaj objekat nema id, njega ce kreirati baza.
 6. Koristi se CrudREpository metoda save(entity) da se objekat snimi u bazu 
 7. U pozadini se koristi ORM da kreira sql statement koji insertuje red u bazu
 8. kreira se StudentRepository interface koji extend-uje CrudRepository. U StudentRepository se definisu metode koje ce se koristiti za rad sa bazom.
@@ -1292,9 +1292,9 @@ Da bi imali repository koji koristi ORM treba da se kreira repository interface 
 interface StudentRepository extends CrudRepository<Student, Long> - prvi parametar je entitet koji se snima u bazu a drugi je tip podatka id-a.
 Kada se pokrene aplikacija spring od interfejsa StudentRepository kreira bean koji od CrudRepository nasledjuje sve metode za rad sa bazom.
 
-    // 1. klijent posalje post request u body-u salje JSOM objekat sa podacima za studenta. 
+    // 1. klijent posalje post request u body-u salje JSON objekat sa podacima za studenta. 
     // 2. @RequestBody uzima taj json i deserijalizuje ga u Student objekat. 
-    // 3. Zatim se taj objketa prosledjuje servisu koji poziva repository-u i u metodu save(student) prosledjuje objekat 
+    // 3. Zatim se taj objkat prosledjuje servisu koji poziva repository-u i u metodu save(student) prosledjuje objekat 
     // 4. repository koristi CRUD metode koje je nasledio od CrudRepository-a i student entity snima u bazu uz pomoc ORM-a
     // 5. ORM layer mapira property-e objekta na kolone i kreira sql statement za insert
 
@@ -1312,7 +1312,7 @@ public interface GradeRepository extends CrudRepository<Grade, Long> {
 }
 
 Na repository metode koje su namenjene za brisanje (deleteBy... metode) traba da se doda anotacija @Transactional da ne bi dobili exception - TransactionRequiredException.
-Ovako je transakcija brisanja deo novo kreirane transakcije i nema ovog exception-a.
+Ovako je transakcija brisanja deo novokreirane transakcije i nema ovog exception-a.
 Ova anotacija se dodaje na metode na repository interface-u.
 
 // na tabelu se dodaje unique constraint da kombinacija podataka student_id i course_id mora da bude jedinstvena 
@@ -1346,11 +1346,11 @@ Dependency je:
 </dependency>
 
 Ako se koristi VS code mora da se instalira i ekstenzija: "Lombok Annotations Support for VS Code"
-Kada se instalira biblioteka Lombok na POJO klasu se dodaju anotacije @getter i Setter i u POJO klasama ne moraju vise da se kreiraju geteri i seteri. Namea boilerplate koda.
-Lombo moze da kreira prazan konstruktor i konstruktor sa svim parametrima kada se dodaju anotacije NoArgsConstructor i AllArgsConstructor.
+Kada se instalira biblioteka Lombok na POJO klasu se dodaju anotacije @Getter i Setter i u POJO klasama ne moraju vise da se kreiraju geteri i seteri. Namea boilerplate koda.
+Lombuk moze da kreira prazan konstruktor i konstruktor sa svim parametrima kada se dodaju anotacije NoArgsConstructor i AllArgsConstructor.
 
-// kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao paremetri 
-@AllArgsConstructor
+// kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao parametri 
+
 
 ------------- Undirectional Relationship -------------
 Undirectional Relationship znaci da se vise redova iz child tabele vezuje za jedan red u parent tabeli.
@@ -1359,10 +1359,10 @@ Svaki student moze imati vise ocena pa u grades tabeli moze da se nadje vise red
 
 U Grade entitetu se kreira field Student i sa @ManyToOne kazemo je to veza Many-to-One relacija.
     // Svaki student moze imati vise ocena pa u grades tabeli moze da se nadje vise redova sa istim student_id. U tabeli grades student_id je foreign key koji referencira kolonu students.id
-    // ovo je ManyToOne relacija i znaci da jedan Student ima vide grade
+    // ovo je ManyToOne relacija i znaci da jedan Student ima vise grade
     // u @ManyToOne relacijama child tabela radi sa FK
     // Many grades will be associated with one student
-    @ManyToOne(optional = false) // nije opcioni tj. podatak student je obavezan za svaki grade. (optional = false) je runtime instrukcija pa ako kontroler posalje grade bez studenta ovo ce blokirati taj zahtev pre nego sto posalje zahtev u vazu
+    @ManyToOne(optional = false) // nije opcioni tj. podatak student je obavezan za svaki grade. (optional = false) je runtime instrukcija pa ako kontroler posalje grade bez studenta ovo ce blokirati taj zahtev pre nego sto posalje zahtev u bazu
     @JoinColumn(name = "student_id", referencedColumnName = "id") // grade FK kolona grade.student_id referencira kolonu student.id
     private Student student;
 
@@ -1372,8 +1372,8 @@ U student tabeli je anotacija @OneToMany a u grade tabeli je anotacija @ManyToOn
 @OneToMany student tabela - jedan red u student tabeli moze biti vezan sa vise redova u grade tabeli.
 @OneToMany student tabela - cita se: one student belongs to many grades
 
-@MenyToOne grade tabela - vise redova u grade tabeli moze biti vezano za jedan red u student tabeli 
-@MenyToOne grade tabela - cita se: many grades belongs to one student
+@ManyToOne grade tabela - vise redova u grade tabeli moze biti vezano za jedan red u student tabeli 
+@ManyToOne grade tabela - cita se: many grades belongs to one student
 
 Ovo dole je u Student entitetu    // jedan objekat student moze biti vezan (imati listu) za vise grade objekata
     // mappedBy = "student" - ovime kazemo da je veza izmedju Student-a i Grade-a mapirana sa property-em "student" u grade objektu 
@@ -1386,7 +1386,7 @@ Ako se gleda veza izmedju tabela courses i grades tabela grades nema smisla bez 
 
 U grades treba da bude property grades i on treba da bude @ManyToOne tj. vise redova u grade tabeli moze da bude vezano za jedan red u courses tabeli.
 
-Kada je u pitanju veza izmedju student i grade owner relacije je grade tabela jer je u njoj FK student_id. Kada ej OneToMany veza owner je tabela u kojoj je FK. Zato se u grade entitetu dodaju property students i na njemu anotacija @JoinColumn. U student entitetu je @OneToMany(mappedBy = "student") sto znaci de je veza mapirana po property-u "student" u grade entitetu.
+Kada je u pitanju veza izmedju student i grade, owner relacije je grade tabela jer je u njoj FK student_id. Kada je OneToMany veza owner je tabela u kojoj je FK. Zato se u grade entitetu dodaju property students i na njemu anotacija @JoinColumn. U student entitetu je @OneToMany(mappedBy = "student") sto znaci de je veza mapirana po property-u "student" u grade entitetu.
 
 Ko je owner relacije odlucuje se na osnovu toga koja tabela ne moze da postoji bez one druge i to se odlucuje na osnovu toga u kojoj tabeli je foreign key.
 U tabeli grade je FK student_id i tabela grade ne moze da postoji bez podatka student_id a student tabela moze da postoji bez grade tabele. 
@@ -1407,7 +1407,7 @@ Oba entiteta (i student i course) imaju property-e koji su liste onog drugog
     private Set<Course> coursesInStudentEntity;
 	
 	- entity course ima Set studentsInCourseEntity koji se kreira kao @JoinTable
-    // @JsonIgnore // ako se stavi anotacija @JsonIgnore kada se vraca course JSON objekat u njemu nece biti liste students
+    // @JsonIgnore // ako se stavi anotacija @JsonIgnore kada se vraca course JSON objekat u njemu nece biti lista students
     @ManyToMany
     @JoinTable(
         name = "course_student",
@@ -1416,11 +1416,11 @@ Oba entiteta (i student i course) imaju property-e koji su liste onog drugog
     )
     private Set<Student> studentsInCourseEntity;
 
-Stavlja se Set kolekcija jer 
+Stavlja se Set kolekcija da ne bi bilo duplikata
 
-@JoinTable se kreira na strani oinog ko je owner veze.
+@JoinTable se kreira na strani onog ko je owner veze.
 
-Kada je u pitanju veza izmedju student i grade owner relacije je grade tabela jer je u njoj FK student_id. Kada ej OneToMany veza owner je tabela u kojoj je FK. Zato se u grade entitetu dodaju property students i na njemu anotacija @JoinColumn. U student entitetu je @OneToMany(mappedBy = "student") sto znaci de je veza mapirana po property-u "student" u grade entitetu.
+Kada je u pitanju veza izmedju student i grade, owner relacije je grade tabela jer je u njoj FK student_id. Kada je OneToMany veza owner je tabela u kojoj je FK. Zato se u grade entitetu dodaje property students i na njemu anotacija @JoinColumn. U student entitetu je @OneToMany(mappedBy = "student") sto znaci de je veza mapirana po property-u "student" u grade entitetu.
 
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------

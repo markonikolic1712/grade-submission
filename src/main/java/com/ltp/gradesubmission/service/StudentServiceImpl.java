@@ -46,10 +46,23 @@ public class StudentServiceImpl implements StudentService {
         return (List<Student>) studentRepository.findAll();
     }
 
+    // PUT - http://localhost:8080/api/student/1    
+    // u body-u se salje json objekat sa novim podacima
     @Override
     public void updateStudent(Long id, Student newStudent) throws StudentNotFoundException {
-        // TODO Auto-generated method stub
-        
+
+        // uzima se student po id-u
+        Optional<Student> optional = studentRepository.findById(id);
+        Student student = unwrapStudent(optional, id);
+
+        // objektu koji je uzet se setuju novi podaci u property-e
+        student.setName(newStudent.getName());
+        student.setBirthDate(newStudent.getBirthDate());
+        student.setGrades(newStudent.getGrades());
+        student.setCourses(newStudent.getCourses());
+
+        // objekat koji je uzet se snima u bazu
+        studentRepository.save(student);  
     }   
 
     @Override
