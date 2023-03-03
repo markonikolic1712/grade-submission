@@ -455,7 +455,7 @@ Bean je objekat koji spring skladisti i manipulise sa njim umesto nas.
 Kada se na klasu stavi anotacija @Component spring je vidi i od te klase kreira objekat. Spring kontejner (ApplicationContext) cuva objekat i manipulise sa njim i taj objekat koji zivi u spring kontejneru se zove Bean.
 Bean je objekat koji zivi u spring kontejneru.
 
-Nikada ne treba kreirati objekat unutar klase koja zavisi od tog objekta - to je tight coupling. Umesto toga treba inject-ovati objekat i to je dependency injection (DI) i ovo je loose coupling. Kada se neki objekat (dependency) inject-uje u klasu onda se injectuje referenca ka objektu koji je vec instanciran i postoji u spring boot kontejneru. Ako bi se u dependent klasi instancirao dependency onda bi ce kreirao nova instanca a ne bi s ekoristila ona iz sprin boot kontejnera.
+Nikada ne treba kreirati objekat unutar klase koja zavisi od tog objekta - to je tight coupling. Umesto toga treba inject-ovati objekat i to je dependency injection (DI) i ovo je loose coupling. Kada se neki objekat (dependency) inject-uje u klasu onda se injectuje referenca ka objektu koji je vec instanciran i postoji u spring boot kontejneru. Ako bi se u dependent klasi instancirao dependency onda bi se kreirala nova instanca a ne bi se koristila ona iz spring boot kontejnera.
 
 @Controller
 public class GradeController {
@@ -833,14 +833,14 @@ Front-end aplikacija ce biti React aplikacija (na portu 3000) a backend aplikaci
 1. Klijent salje request
 2. taj request prihvata front-end aplikacija (react) i rutira ga na backend
 3. u backend aplikaciji je logika za baratanje i  skladistenje podataka. 
-4. backend obradjuje podatke i frontend aplikaciji salje podatke u JSON ili XML formatu. Uglavnom JSON
+4. backend obradjuje podatke i frontend aplikaciji salje podatke u JSON ili XML formatu. Uglavnom JSON.
 5. frontend dobija podatke, spaja ih sa view-om i salje ih klijentu
 
 Ovo je dobra praksa jer jedan backend moze da komunicira sa raznim vrstama frontend aplikacija (react, angular ...). Komunikacija se odvija preko API-a.
 Ako se koristi iPhone telefon koristi se: Flutter ili Swift
 Ako se koristi Android telefon koristi se: Flutter ili Kotlin
 
-Od ove lekcije trebaju da se pokrecu dva VS code-a - jedan za fron a drugi za back.
+Od ove lekcije trebaju da se pokrecu dva VS code-a - jedan za front a drugi za back.
 Front-end aplikacija je u folderu: \projects\grade-submission-react\grades-frontend
 U VS code-u se otvori ovaj folder i u terminalu se pozivaju komande:
 - npm install 	- da se instaliraju npm moduli
@@ -1496,7 +1496,7 @@ Autorizacija - oderedjivanje cemu korisnik moze da pristupa.
 
 Proces Basic autentifikacije kada klijent salje request API-u:
 1. API zahteva autentifikaciju pre procesiranja requesta
-2. HTTP request koji salje klijent mora da sadrzi kredencijala u header-u - polje Authorization (Authorization: Basic username:password). Username i password ispred sebe imaju 'Basic'. Username i password se enkoduju sa base64 i kasnije se taj podatak dekodira na strani servera.
+2. HTTP request koji salje klijent mora da sadrzi kredencijale u header-u - polje Authorization (Authorization: Basic username:password). Username i password ispred sebe imaju 'Basic'. Username i password se enkoduju sa base64 i kasnije se taj podatak dekodira na strani servera.
 3. Sada se radi autentifikacija i to tako sto spring security validira identitet klijenta. Spring security uzima podatke koje je poslao klijent i uporedjuje ih sa podacima u bazi. Ako nema tog korisnika onda vraca 401 - UNAUTHORIZED.
 4. Ako spring security uspesno validira korisnika (uspesna autentifikacija) onda prelazi na autorizaciju - odredjivanje cemu korisnik moze da pristupi. Npr. ako klijent ima rolu 'user' onda ne moze da pristupi API-u kojim se kreira resurs u tabeli student i salje response sa 403 - FORBIDDEN. Ako je klijent sa rolom admin onda hendluje request, kreira studenta i vraca 201 CREATED.
 
@@ -1519,9 +1519,9 @@ SecurityFilterChain je bean koji definise niz security pravila (filtera).
 Filter chain je: 1. AuthenticationFilter, 2.AuthorizationFilter, 3. OncePerRequestFilter. 
 
 U projektu kreiramo novi folder (security) i u njemu fajl SecurityConfig.java - /java/com/ltp/contacts/security/SecurityConfig.java
-U securityConfig.java se definise SecurityFilterChain bean - definise se niz porovera (autentifikacija i autorizacija) kroz koje s eprolazi kada se posalje request.
-U securityConfig.java se definise UserDetailsService bean - ovaj bean sadrzi detalje o useru i adminu.
-BCrypt je hashing algoritam koji sluzi za enkodiranje lozinke i kada se ona jedno enkodira ne moze da se vrati u prvpbitno stanje/dekodira. Takav dekodiran password (string) se cuva u bazi a kada korisnik pokusava da se uloguje i ukuca password on se enkriptuje i uporedjuje se sa stringom u bazi.
+U SecurityConfig.java se definise SecurityFilterChain bean - definise se niz porovera (autentifikacija i autorizacija) kroz koje se prolazi kada se posalje request.
+U SecurityConfig.java se definise UserDetailsService bean - ovaj bean sadrzi detalje o useru i adminu.
+BCrypt je hashing algoritam koji sluzi za enkodiranje lozinke i kada se ona jedno enkodira ne moze da se vrati u prvobitno stanje/dekodira. Takav dekodiran password (string) se cuva u bazi a kada korisnik pokusava da se uloguje i ukuca password on se enkriptuje i uporedjuje se sa stringom u bazi.
 
 Bean SecurityFilterChain presrece request pre nego sto dodje do kontrolera. Taj request prolazi kroz FilterChain i tek posle toga se request propusta do kontrolera (ili se ne propusta).
 
@@ -1532,7 +1532,7 @@ public class SecurityConfig {
     // ovo je autowired bean-a BCryptPasswordEncoder koji smo definisali u main klasi
     private BCryptPasswordEncoder passwordEncoder;
     
-@Bean
+	@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // prolazi se kroz filter chain i proveravaju se autentifikacija i autorizacija
         http
@@ -1583,7 +1583,7 @@ Implementacija JWT autentifikacije se obavlja u 3 koraka:
 1. patway 1 - singing up. Korisnik salje post request na '/register' sa sadrzajem u body-u {"username":"Pera", "password":"lozinka"}
 	Svaki request prolazi kroz Security Filter Chain i u njemu je permit("/register") sto znaci da svaki post request koji dolazi na uvaj url treba da se propusti bez autentifikacije i autorizacije.
 	Uzimaju se podaci iz requesta, password se enkriptuje i podaci se snimaju u bazu.
-2. pathway 2 - logging in. Sada korisnik treba da uradi autentifikacija. Salje se post request na /authenticate. Salkje se isti sadrzaj kao u prethodnom koraku.
+2. pathway 2 - logging in. Sada korisnik treba da uradi autentifikacija. Salje se post request na /authenticate. Salje se isti sadrzaj kao u prethodnom koraku.
 	Uzimaju se podaci iz username i password i uporedjuju se sa podacima u bazi. Password je u bazi enkriptovan pa i ovaj koji je prosledjen na /register treba da se enkriptuje i uporedi sa onim u bazi. Ako se podaci ne slazu vraca ce 401 - Invalid Credencials.
 	Ako su username i password dobri onda se kao response salje 200:OK i 'Authorization: Bearer JWT'. U responsu se salje i JSON Web Token (JWT).
 	JWT se sastoji (sadrzi) iz: Header, Payload i Signature.
@@ -1598,20 +1598,20 @@ Implementacija JWT autentifikacije se obavlja u 3 koraka:
 
 	Algoritam HS256 se koristi da kreira digitalni potpis. Uzima se header, payload i tajni kljuc i od svega toga se kreira digitalni potpis. Tajni kljuc zna samo API. 
 	Na kraju se dobija eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiUGVyYSIsInN1YiI6Imxvemlua2EiLCJpYXQiOjMzNDIzNDMyfQ.RQPaBZKvNQqhUwVWzi5yWBQ2dINj71sdeh3xxVudzxc
-	Treci deo, koji je iza druge tacke, je digitalni potpis. Ovakav JWT(header.payload.potpis) signed JSON Web Token. Ovaj JWT se salje nazad korisniku koji na /auuthenticate posalje dobar username i password.
+	Treci deo, koji je iza druge tacke, je digitalni potpis. Ovakav JWT(header.payload.potpis) je signed JSON Web Token. Ovaj JWT se salje nazad korisniku koji na /auuthenticate posalje dobar username i password.
 3. patway 3 - Authorizing Request - korisniku koji se na /authenticate loguje sa dobrim username i password salje se potpisan JWT.
 
-Sada klijent/korisnik ima JWT i zeli da pristupi url-ovima /student/{id}, /grade, /course/{id} i sl. Uz request klijent salje i JWT koji je dobio od API-a. API prihvata JWT (header.payload.signature) od klijenta uzima header i payload i na njih dodaje tajni kljuc koji samo on zna (samo API) i kreira potpisani JWT. Taj JWT koji je kreirao prilikom provere uporedjuje sa onim koji je dobio od klijenta i ako su isti onda klijent moze da pristupo resursima. 
+Sada klijent/korisnik ima JWT i zeli da pristupi url-ovima /student/{id}, /grade, /course/{id} i sl. Uz request klijent salje i JWT koji je dobio od API-a. API prihvata JWT (header.payload.signature) od klijenta uzima header i payload i na njih dodaje tajni kljuc koji samo on zna (samo API) i kreira potpisani JWT. Taj JWT koji je kreirao prilikom provere uporedjuje sa onim koji je dobio od klijenta i ako su isti onda klijent moze da pristupi resursima. 
 Samo API zna tajni kljuc. Klijent ne zna tajni kljuc - klijent samo salje JWT koji je dobio od API-a a ako proba da ga promeni nece biti isti kao onaj koji se kreira prilikom provere.
 Ako JWT koji je klijent poslao, nije prosao kontrolu, klijentu se vraca response 403-FORBIDDEN.
-Ako je provera JWT-a prosla spring autentifikaciju smesta u SecurityContextHolder. Kada se to uradi time se indikuje da je korisnik uspesno autentifikovan. Ovo je kraj pathway-a 3.
+Ako je provera JWT-a prosla (uspesna je) spring boot autentitificate objekat smesta u SecurityContextHolder. Kada se to uradi time se indikuje da je korisnik uspesno autentifikovan. Ovo je kraj pathway-a 3.
 	
 Bean SecurityFilterChain presrece request pre nego sto dodje do kontrolera. Taj request prolazi kroz FilterChain i tek posle toga se request propusta do kontrolera (ili se ne propusta).
 	
 Pathway 1 - implementacija
 Kreiranje (registracija) user-a. Upis username i password u bazu.
 Za url /register se dozvoljava svima da mogu da posalju request i to zato da bi mogli da se registruju kao korisnici. U SecurityFilterChain se kreira security rule i dodaje se: .antMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll() // svaki post request na /user/register je dozvoljen
-SecurityConstants.REGISTER_PATH je konstanta koju smo kreirali - /user/register.
+SecurityConstants.REGISTER_PATH je konstanta koju smo kreirali - /api/user/register.
 Request prolazi filter i prosledjuje se UserController-u i koristi se metoda iz kontrolera da se user snimi u bazu. Sa ResponseEntity se korisniku vraca samo kod HttpStatus.CREATED a ne i user koji je kreiran. Taj user sadrzi hash-ovan password i opasno je to slati nazad.
 
 Pathway 2 - implementacija
@@ -1620,7 +1620,7 @@ U authenticate() metodi se uzima prosledjeni password, on se hash-uje i taj hash
 Nakon ovoga ce metoda successfulAuthentification() metoda u filteru biti pozvana i ona klijentu salje JWT token.
 // kada korisnik posalje request na url /login poziva se ova metoda - attemptAuthentication()
 
-Kreiramo klasu ExceptionHandlerFilter koja ce biti prvi filter koji ce biti pozvan i u ovoj klasi se radu unwrapp requesta klijenta za logovanje. U ovoj klasi je try-catch blok i u njemu se radu unwrapp pa ako je klijent prosledio objekat sa losim imenima property-a (nije username ili password) onda se iz catch-a salje response klijentu. Ako je request dobar onda se prosledjuje u sledeci filter.
+Kreiramo klasu ExceptionHandlerFilter koja ce biti prvi filter koji ce biti pozvan i u ovoj klasi se radi unwrapp requesta klijenta za logovanje. U ovoj klasi je try-catch blok i u njemu se radi unwrapp pa ako je klijent prosledio objekat sa losim imenima property-a (nije username ili password) onda se iz catch-a salje response klijentu. Ako je request dobar onda se prosledjuje u sledeci filter.
 Kada se kreira Authentication objekat on treba da se prosledi AuthenticationManager-u. 
 
 Radi se u AuthenticationFilter u metodama successfulAuthentication() i unsuccessfulAuthentication(). 

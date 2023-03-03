@@ -31,7 +31,7 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // uzima se user po username-u
-        // kasa se uzimaju podaci iz requesta kreira se objekat klase UsernamePasswordAuthenticationToken i u njegovproperty principal se smestaju username i password a user name uzima sa getName(). Property principaj je objekat. U credentials property-u se cuva lozinka
+        // kasa se uzimaju podaci iz requesta kreira se objekat klase UsernamePasswordAuthenticationToken i u njegov property principal se smestaju username i password a user name uzima sa getName(). Property principal je objekat. U credentials property-u se cuva lozinka
         // iz authentication objekta iz principal property-a username moze da se uzme na dva nacina
         //User user = userService.getUser(authentication.getName());
         User user = userService.getUser(authentication.getPrincipal().toString());

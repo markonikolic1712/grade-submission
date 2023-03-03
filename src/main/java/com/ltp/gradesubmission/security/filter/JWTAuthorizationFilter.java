@@ -17,7 +17,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.ltp.gradesubmission.security.SecurityConstants;
 
-// kada se korisnik uloguje on dobija JWT i kadazeli da pristupi API resursima (url-ovi u kontrolerima) on u header-u salje JWT kao dokaz da je autentifikovan.  
+// kada se korisnik uloguje on dobija JWT i kada zeli da pristupi API resursima (url-ovi u kontrolerima) on u header-u salje JWT kao dokaz da je autentifikovan.  
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     // ovde je dosao request koji je klijent poslao i koji u header-u ima "Authorization: Berer JWT"
@@ -29,7 +29,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization"); 
 
         // ako korisnik salje request da se registruje (kreira nalog) onda nema property-a "Authorization" pa je String header = null onda nema JWT-a pa predji na sledeci filter. Kada se predje na sledeci filter ide se na registraciju korisnika
-        // !header.startsWith(SecurityConstants.BEARER) - ili ako ima property-a "Authorization" a ne pocine sa "Bearer " onda nema JWT-a pa predji na sledeci filter. Kada se predje na sledeci filter ide se na registraciju korisnika
+        // !header.startsWith(SecurityConstants.BEARER) - ili ako ima property-a "Authorization" a ne pocinje sa "Bearer " onda nema JWT-a pa predji na sledeci filter. Kada se predje na sledeci filter ide se na registraciju korisnika
         if(header == null || !header.startsWith(SecurityConstants.BEARER)) {
             filterChain.doFilter(request, response);
             return;

@@ -29,6 +29,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private CustomAuthenticationManager customAuthenticationManager;
 
     // kada korisnik posalje request na url /api/authenticate poziva se ova metoda - attemptAuthentication()
+    // Authentication - import org.springframework.security.core.Authentication;
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
