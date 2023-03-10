@@ -14,7 +14,7 @@ import com.ltp.gradesubmission.service.UserServiceImpl;
 
 import lombok.AllArgsConstructor;
 
-// ovu klasu sa @Component pretvaramo u bean da nebi klase bile tightly coupled
+// ovu klasu sa @Component pretvaramo u bean da ne bi klase bile tightly coupled
 // u klasi AuthenticationFilter je potrebna instanca ove klase pa se koristi @autowired da bi bile loosly coupled
 // u AuthenticationFilter se koristi lombok @AllArgsConstructor pa se kao property samo navede CustomAuthenticationManager i on ce biti automatski injectovan 
 @Component
@@ -31,10 +31,10 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // uzima se user po username-u
-        // kasa se uzimaju podaci iz requesta kreira se objekat klase UsernamePasswordAuthenticationToken i u njegov property principal se smestaju username i password a user name uzima sa getName(). Property principal je objekat. U credentials property-u se cuva lozinka
+        // kada se uzimaju podaci iz requesta kreira se objekat klase UsernamePasswordAuthenticationToken i u njegov property principal se smestaju username i password a user name uzima sa getName(). Property principal je objekat. U credentials property-u se cuva lozinka
         // iz authentication objekta iz principal property-a username moze da se uzme na dva nacina
-        //User user = userService.getUser(authentication.getName());
-        User user = userService.getUser(authentication.getPrincipal().toString());
+        //User user = userService.getUser(authentication.getName()); // prvi nacin
+        User user = userService.getUser(authentication.getPrincipal().toString()); // drugi nacin
         
         // kada smo dobili user-a iz baze po username-u sada se proverava lozinka. Dobijena lozinka od klijenta se hash-uje i uporedjuje sa onom iz baze. Ako korisnik zna dobru lozinku ond ce nen hash biti isti kao onaj iz baze
         // ako se lozinke ne poklapaju onda se baca izuzetak BadCredentialsException("Wrong PASSWORD")

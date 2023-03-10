@@ -44,7 +44,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             System.out.println(user.getPassword());
 
             // sada je vec kreiran authentification objekat (user) i on se salje u AuthentificationManager
-            // prvi parametar je tzv. 'principal' i po njemu s eidentifikuje korisnik a to je ovde username - user.getClass()
+            // prvi parametar je tzv. 'principal' i po njemu se identifikuje korisnik a to je ovde username - user.getClass()
             Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
 
             // authentication je objekat koji sadrzi izvucene username i password iz requesta i oni se prosledjuju CustomAuthenticationManager-u koji ih proverava. Ako su kredencijali dobri poziva se successfulAuthentication()

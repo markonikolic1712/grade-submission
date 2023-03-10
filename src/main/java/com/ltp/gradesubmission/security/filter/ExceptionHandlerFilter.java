@@ -16,7 +16,7 @@ import com.ltp.gradesubmission.exception.EntityNotFoundException;
 // OncePerRequestFilter garantuje da ce se pokrenuti jednom po requestu
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
-// Kreiramo klasu ExceptionHandlerFilter koja ce biti prvi filter koji ce biti pozvan i u ovoj klasi se radu unwrapp requesta klijenta za logovanje. U ovoj klasi je try-catch blok i u njemu se radu unwrapp pa ako je klijent prosledio objekat sa losim imenima property-a (nije username ili password) onda se iz catch-a salje response klijentu. Ako je request dobar onda se prosledjuje u sledeci filter.
+// Kreiramo klasu ExceptionHandlerFilter koja ce biti prvi filter koji ce biti pozvan i u ovoj klasi se radi unwrapp requesta klijenta za logovanje. U ovoj klasi je try-catch blok i u njemu se radi unwrapp pa ako je klijent prosledio objekat sa losim imenima property-a (nije username ili password) onda se iz catch-a salje response klijentu. Ako je request dobar onda se prosledjuje u sledeci filter.
 @Override
 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {

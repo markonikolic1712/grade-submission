@@ -1117,7 +1117,7 @@ Kada se instalira ovaj dependency dovoljno je otici na http://localhost:8080/v3/
 Na url-u http://localhost:8080/v3/api-docs se dobija OpenAPI specifikacija koju kreira dependencu koji skenira kod i kreira specifikaciju.
 Na url-u http://localhost:8080/swagger-ui/index.html se dobija specifikacija koja je laksa za citanje.
 
-Ono sto s eprikazuje u browswer-u na swagger url-u moze da se podesava. Kreira se folder config i u njemu @Configuration klasa u kojoj se konfigurise @Bean OpenAPI.
+Ono sto se prikazuje u browswer-u na swagger url-u moze da se podesava. Kreira se folder config i u njemu @Configuration klasa u kojoj se konfigurise @Bean OpenAPI.
 java\com\ltp\contacts\config\OpenApiConfig.java
 
 package com.ltp.contacts.config;
@@ -1192,11 +1192,11 @@ H2 baza se instalira i koristi za razvoj. H2 se nalazi u memoriji i svaki put ka
 Dodavanje H2 i JPA dependency-a:
 Ide se u pom.xml, desni klik pa 'Add starters...'. U pretrazi se kuca H2 i JPA i oni se dodaju u dependecy-e.
 
-Ako se dependency ukopira sa maven repozitorijuma tamo je tag <scope>tes</scope> sto znaci da ce H2 biti dostupna samo za test. Ovo treba promeniti na runtime jer je H2 potrebna u toku runtime-a. <scope>runtime</scope>
+Ako se dependency kopira sa maven repozitorijuma tamo je tag <scope>tes</scope> sto znaci da ce H2 biti dostupna samo za test. Ovo treba promeniti na runtime jer je H2 potrebna u toku runtime-a. <scope>runtime</scope>
 
 U application.properties se dodaje:
 spring.h2.console.enabled=true			- ovo omogucava da se u browseru vidi sadrzaj H2 baze
-spring.h2.console.path=/h2				- putanja koja treba da se kuca u browseru da bi se la konzola
+spring.h2.console.path=/h2				- putanja koja treba da se kuca u browseru da bi se videla konzola
 spring.datasource.url=jdbc:h2:mem:grade-submission	- ovako odredjujemo na kojoj lokaciji ce biti sadrzaj baze
 
 pregled sadrzaja u browser-u:
@@ -1347,7 +1347,7 @@ Dependency je:
 
 Ako se koristi VS code mora da se instalira i ekstenzija: "Lombok Annotations Support for VS Code"
 Kada se instalira biblioteka Lombok na POJO klasu se dodaju anotacije @Getter i Setter i u POJO klasama ne moraju vise da se kreiraju geteri i seteri. Namea boilerplate koda.
-Lombuk moze da kreira prazan konstruktor i konstruktor sa svim parametrima kada se dodaju anotacije NoArgsConstructor i AllArgsConstructor.
+Lombok moze da kreira prazan konstruktor i konstruktor sa svim parametrima kada se dodaju anotacije NoArgsConstructor i AllArgsConstructor.
 
 // kada se na klasu stavi anotacija @AllArgsConstructor onda anotacije @Autowied sa repozitorijuma moze da se ukloni. Sa @AllArgsConstructor ce se kreirati konstruktor u kome ce GradeRepository i StudentRepository dependency biti inject-ovani kao parametri 
 
@@ -1377,7 +1377,7 @@ U student tabeli je anotacija @OneToMany a u grade tabeli je anotacija @ManyToOn
 
 Ovo dole je u Student entitetu    // jedan objekat student moze biti vezan (imati listu) za vise grade objekata
     // mappedBy = "student" - ovime kazemo da je veza izmedju Student-a i Grade-a mapirana sa property-em "student" u grade objektu 
-    // kada se ovako mapira veza izmedju Student-a i Grade--a nece se kreirati join tabela STUDENT_GARADE koju bi hibernate kreirao da nema ovog mapiranja
+    // kada se ovako mapira veza izmedju Student-a i Grade-a nece se kreirati join tabela STUDENT_GARADE koju bi hibernate kreirao da nema ovog mapiranja
     @OneToMany(mappedBy = "student") 
     private List<Grade> grades;
 
@@ -1583,7 +1583,7 @@ Implementacija JWT autentifikacije se obavlja u 3 koraka:
 1. patway 1 - singing up. Korisnik salje post request na '/register' sa sadrzajem u body-u {"username":"Pera", "password":"lozinka"}
 	Svaki request prolazi kroz Security Filter Chain i u njemu je permit("/register") sto znaci da svaki post request koji dolazi na uvaj url treba da se propusti bez autentifikacije i autorizacije.
 	Uzimaju se podaci iz requesta, password se enkriptuje i podaci se snimaju u bazu.
-2. pathway 2 - logging in. Sada korisnik treba da uradi autentifikacija. Salje se post request na /authenticate. Salje se isti sadrzaj kao u prethodnom koraku.
+2. pathway 2 - logging in. Sada za korisnika treba da uradi autentifikacija. Salje se post request na /authenticate. Salje se isti sadrzaj kao u prethodnom koraku.
 	Uzimaju se podaci iz username i password i uporedjuju se sa podacima u bazi. Password je u bazi enkriptovan pa i ovaj koji je prosledjen na /register treba da se enkriptuje i uporedi sa onim u bazi. Ako se podaci ne slazu vraca ce 401 - Invalid Credencials.
 	Ako su username i password dobri onda se kao response salje 200:OK i 'Authorization: Bearer JWT'. U responsu se salje i JSON Web Token (JWT).
 	JWT se sastoji (sadrzi) iz: Header, Payload i Signature.
